@@ -1,17 +1,17 @@
 # Projet Wish
 
-**Le projet**
+## Le projet
 
 L'objectif du projet est de permettre aux utilisateurs de référencer la liste des objets qu’ils veulent acheter ou se voir offrir. Nous avons pour cela développé une application Android, une API en NodeJS avec le framework Sails.js et un site internet avec Angular 7. Ce dépôt ne contient que l'application du site internet.
 
-**L'équipe**
+## L'équipe
 
 Notre groupe est composé des personnes suivantes :
 - Andrea MORABITO
 - Mickael MOREIRA
 - Jérémie ROLAND
 
-**Generation**
+## Spécification
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.7.
 
