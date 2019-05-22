@@ -13,7 +13,7 @@ export class CategoryApi extends BaseSailsApi {
     constructor(
         @Inject(HttpClient) protected http: HttpClient,
     ) {
-        super(http, 'category');
+        super(http, 'categories');
     }
 
     public findByIdFans<User>(id: number): Observable<User[]> {

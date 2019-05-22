@@ -8,6 +8,6 @@ export class ItemApi extends BaseSailsApi {
     constructor(
         @Inject(HttpClient) protected http: HttpClient,
     ) {
-        super(http, 'item');
+        super(http, 'items');
     }
 }

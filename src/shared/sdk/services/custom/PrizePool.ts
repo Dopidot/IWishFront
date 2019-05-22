@@ -11,7 +11,7 @@ export class PrizePoolApi extends BaseSailsApi {
     constructor(
         @Inject(HttpClient) protected http: HttpClient,
     ) {
-        super(http, 'prizepool');
+        super(http, 'prizepools');
     }
 
     public findByIdDonations<Donation>(id: number): Observable<Donation[]> {

@@ -15,7 +15,7 @@ export class UserApi extends BaseSailsApi {
     constructor(
         @Inject(HttpClient) protected http: HttpClient,
     ) {
-        super(http, 'user');
+        super(http, 'users');
     }
 
     public findByIdCategories<Category>(id: number): Observable<Category[]> {

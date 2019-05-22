@@ -1,7 +1,8 @@
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { NgModule, ModuleWithProviders } from '@angular/core';
-import { CategoryApi, DonationApi, ItemApi, PrizePoolApi, UserApi, WishlistApi } from './services';
+import { AuthenticationApi, CategoryApi, DonationApi, ItemApi, PrizePoolApi, UserApi, WishlistApi } from './services';
+
 
 @NgModule({
   imports:      [ CommonModule, HttpClientModule ],
@@ -14,6 +15,7 @@ export class SDKBrowserModule {
     return {
       ngModule  : SDKBrowserModule,
       providers : [
+        AuthenticationApi,
         CategoryApi,
         DonationApi,
         ItemApi,

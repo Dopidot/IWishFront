@@ -7,10 +7,17 @@
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">LOGIN</h5>
         </div>
 
+        <div class="alert alert-success" role="alert" *ngIf="success_message != null">
+            {{success_message}}
+        </div>
+        <div class="alert alert-danger" role="alert" *ngIf="error_message != null">
+            {{error_message}}
+        </div>
+
         <!-- Login Form -->
-        <form>
-            <input type="text" id="login" class="fadeIn second" name="login" placeholder="Email address">
-            <input type="password" id="password" class="fadeIn third" name="login" placeholder="Password">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <input type="text" id="email" class="fadeIn second" name="email" formControlName="email" placeholder="Email address">
+            <input type="password" id="password" class="fadeIn third" name="password" formControlName="password" placeholder="Password">
             <input type="submit" class="fadeIn fourth" value="Login">
 
             <hr class="my-4">

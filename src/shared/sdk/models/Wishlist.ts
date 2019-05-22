@@ -7,7 +7,7 @@ export interface WishlistInterface {
     createdAt?: number;
     updatedAt?: number;
     name: string;
-    public: boolean;
+    isPublic: boolean;
     items?: Item[];
     prizePool?: PrizePool;
     prizePoolId?: number;
@@ -21,7 +21,7 @@ export class Wishlist {
     createdAt: number;
     updatedAt: number;
     name: string;
-    public: boolean;
+    isPublic: boolean;
     items?: Item[];
     prizePool?: PrizePool;
     prizePoolId?: number;

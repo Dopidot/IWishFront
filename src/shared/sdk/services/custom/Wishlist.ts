@@ -12,7 +12,7 @@ export class WishlistApi extends BaseSailsApi {
     constructor(
         @Inject(HttpClient) protected http: HttpClient,
     ) {
-        super(http, 'wishlist');
+        super(http, 'wishlists');
     }
 
     public findByIdItems<Item>(id: number): Observable<Item[]> {

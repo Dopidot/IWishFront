@@ -8,7 +8,9 @@ export interface DonationInterface {
     updatedAt?: number;
     amount: number;
     prizePool?: PrizePool;
+    prizePoolId?: number;
     donor?: User;
+    donorId?: number;
 }
 
 export class Donation {
@@ -17,7 +19,9 @@ export class Donation {
     updatedAt: number;
     amount: number;
     prizePool?: PrizePool;
+    prizePoolId?: number;
     donor?: User;
+    donorId?: number;
 
     public static getModelName() {
         return "Donation";

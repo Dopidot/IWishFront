@@ -4,3 +4,4 @@ export * from './Item';
 export * from './PrizePool';
 export * from './User';
 export * from './Wishlist';
+export * from './Authentication';

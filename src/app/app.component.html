@@ -19,11 +19,18 @@
             <li class="nav-item">
                 <a class="nav-link" href="create">New wishlist</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="donation">My donations</a>
+            </li>
         </ul>
 
         <ul class="navbar-nav" style="position: absolute; right: 0; margin-right: 10px;">
+            <span class="navbar-text" style="color: #fff; margin-right: 1rem;" *ngIf="isConnected() != null">
+                Connected as <a href="profile" >{{firstname}}</a>
+            </span>
             <li class="nav-item">
-                <a class="nav-link" href="login">Log In</a>
+                <a class="nav-link" href="login" *ngIf="isConnected() == null">Log In</a>
+                <a class="nav-link" style="cursor: pointer;" *ngIf="isConnected() != null" (click)="logout()">Logout</a>
             </li>
         </ul>
     </div>

@@ -1,0 +1,27 @@
+<div class="wrapper fadeInDown">
+    <div id="formContent">
+        <!-- Tabs Titles -->
+
+        <!-- Icon -->
+        <div class="fadeIn first" style="margin: 20px; font-weight: 600;">
+            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">My Account</h5>
+        </div>
+
+        <!-- Login Form -->
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+            <input type="text" id="firstName" class="fadeIn second" name="firstName" formControlName="firstName" placeholder="First name">
+            <input type="text" id="lastName" class="fadeIn second" name="lastName" formControlName="lastName" placeholder="Last name">
+            <input type="text" id="emailAddress" class="fadeIn second" name="emailAddress" formControlName="email" placeholder="Email address">
+            <input type="password" id="password1" class="fadeIn third" name="password1" placeholder="New password">
+            <input type="password" id="password2" class="fadeIn third" name="password2" placeholder="Confirm password">
+            <input type="submit" class="fadeIn fourth" value="Update">
+        </form>
+
+        <!-- Remind Passowrd -->
+        <!-- <div id="formFooter">
+            Already have an account?
+            <a class="underlineHover" href="login">Log In</a>
+        </div> -->
+
+    </div>
+</div>
