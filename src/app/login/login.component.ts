@@ -42,7 +42,8 @@ export class LoginComponent implements OnInit {
         this.authApi.login({ email: email, password: password }).subscribe((login) => {
 
             console.log("is auth ? ", this.authApi.isAuthenticated()); // true
-            this.success_message = "Successfully !";
+            this.error_message = null;
+            this.success_message = "Successfully connected !";
             let loginResponse = login.body;
             this.authApi.storeInfo(loginResponse as LoginResponse);
             console.log(login);
