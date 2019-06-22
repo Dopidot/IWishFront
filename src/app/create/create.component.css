@@ -348,3 +348,12 @@ html {
   .slider.round:before {
     border-radius: 50%;
   }
+
+ .customCheckbox {
+    color: #0d0d0d;
+    text-align: left;
+    display: inline-block;
+    font-size: 16px;
+    margin: 5px;
+    width: 83%;
+  }

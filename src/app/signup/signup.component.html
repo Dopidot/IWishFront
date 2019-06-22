@@ -7,6 +7,13 @@
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Sign Up</h5>
         </div>
 
+        <div class="alert alert-success" role="alert" *ngIf="success_message != null">
+            {{success_message}}
+        </div>
+        <div class="alert alert-danger" role="alert" *ngIf="error_message != null">
+            {{error_message}}
+        </div>
+
         <!-- Sign Up Form -->
         <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
             <input type="text" id="firstName" class="fadeIn second" name="firstName" formControlName="firstName" placeholder="First name">

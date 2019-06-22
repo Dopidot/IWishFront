@@ -7,32 +7,37 @@
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Create new wishlist</h5>
         </div>
 
-        <!-- Login Form -->
-        <form>
-            <input type="text" id="name" class="fadeIn second" name="name" placeholder="Name">
-            <input type="text" id="prizePool" class="fadeIn second" name="prizePool" placeholder="Prize pool">
-            <input type="text" id="isPublic" class="fadeIn second" name="isPublic" placeholder="Is public">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name">
 
-            <input type="text" id="delegateTo" class="fadeIn second" name="delegateTo" placeholder="Delegate to">
-            <!-- <div>Public
+            <div class="customCheckbox">
+                Public
                 <label class="switch">
-                    <input type="checkbox" class="primary">
+                    <input type="checkbox" class="primary" formControlName="public">
                     <span class="slider"></span>
                 </label>
-            </div> -->
+            </div>
+
+            <hr>
+
+            <div class="customCheckbox" style="cursor: pointer;" (click)="showInfo = !showInfo;">
+                <div style="display: inline-block; width: 94%;">Prize Pool</div>
+                <fa class="mr-2" name="sort-down" style="margin-left: 5px;"></fa>
+            </div>
+
+            <div *ngIf="showInfo">
+                    <input type="text" id="prizePool" class="fadeIn second" name="prizePool" placeholder="Prize pool">
+                    
+        
+                    <input type="text" id="delegateTo" class="fadeIn second" name="delegateTo" placeholder="Delegate to">
+            </div>
+
+            
+
+
 
             <input type="submit" class="fadeIn fourth" value="Create">
         </form>
-
-        <!-- Remind Passowrd
-            <div id="formFooter">
-                Already have an account?
-                <a class="underlineHover" href="login">Log In</a>
-            </div> -->
-
-
-
-
 
     </div>
 </div>
