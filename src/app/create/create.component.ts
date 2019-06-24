@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Wishlist, WishlistApi, User } from '../../shared/sdk';
+import { Wishlist, WishlistApi, User, PrizePool, PrizePoolApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
@@ -13,8 +13,9 @@ export class CreateComponent implements OnInit {
     form: FormGroup;
     success_message = null;
     error_message = null;
+    showInfo;
 
-    constructor(private wishlistApi: WishlistApi, private formBuilder: FormBuilder, private router: Router) { }
+    constructor(private wishlistApi: WishlistApi, private prizePoolApi: PrizePoolApi, private formBuilder: FormBuilder, private router: Router) { }
 
     ngOnInit() {
         this.createForm();
@@ -23,7 +24,9 @@ export class CreateComponent implements OnInit {
     private createForm() {
         this.form = this.formBuilder.group({
             name: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
-            public: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(30)]]
+            public: [false, [Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
+            delegateTo: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            endDate: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
         });
     }
 
@@ -40,20 +43,53 @@ export class CreateComponent implements OnInit {
         if (!isValid)
             return;
 
-        let wishlist = new Wishlist();
+        /*let wishlist = new Wishlist();
         wishlist.name = name;
         wishlist.isPublic = isPublic;
 
-        let user = new User();
-        user.id = parseInt(localStorage.getItem("id"), 10);
-        wishlist.owner = user; 
+        wishlist.owner = parseInt(localStorage.getItem("id"), 10);*/
+
+        let wishlist = {
+            name : name,
+            isPublic : isPublic,
+            owner : parseInt(localStorage.getItem("id"), 10)
+        };
 
         this.wishlistApi.create(wishlist).subscribe((item) => {
             console.log(item);
-            this.success_message = "The wishlist has been successfully created !";
+
+            if(this.showInfo)
+            {
+                var date = new Date(this.form.controls.endDate.value);
+
+                let prizePool ={
+                    managerId : 1,
+                    endDate : date.getTime(),
+                    wishlist : item['id'],
+                    manager : 1
+                };
+
+                this.prizePoolApi.create(prizePool).subscribe((prizePool) => {
+                    console.log(prizePool);
+                    this.error_message = null;
+                    this.success_message = "The wishlist has been successfully created !";
+                }, error => {
+                    console.log(error);
+                    this.error_message = "An error has occurred with the prize pool. Please check your information and try again.";
+                    this.success_message = null;
+                });
+            }
+            else
+            {
+                this.error_message = null;
+                this.success_message = "The wishlist has been successfully created !";
+            }
+
+            
         }, error => {
             console.log(error);
-            this.error_message = "An error has occurred. Please check your information and try again.";
+            this.error_message = "An error has occurred with the wishlist. Please check your information and try again.";
+            this.success_message = null;
         });
     }
 

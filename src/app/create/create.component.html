@@ -7,6 +7,13 @@
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Create new wishlist</h5>
         </div>
 
+        <div class="alert alert-success" role="alert" *ngIf="success_message != null">
+            {{success_message}}
+        </div>
+        <div class="alert alert-danger" role="alert" *ngIf="error_message != null">
+            {{error_message}}
+        </div>
+
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name">
 
@@ -26,10 +33,9 @@
             </div>
 
             <div *ngIf="showInfo">
-                    <input type="text" id="prizePool" class="fadeIn second" name="prizePool" placeholder="Prize pool">
+                    <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to">
+                    <input type="date" class="customCheckbox" value="2019-07-22" name="endDate" formControlName="endDate" min="2019-01-01" max="2020-12-31">
                     
-        
-                    <input type="text" id="delegateTo" class="fadeIn second" name="delegateTo" placeholder="Delegate to">
             </div>
 
             
