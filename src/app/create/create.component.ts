@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Wishlist, WishlistApi, User, PrizePool, PrizePoolApi } from '../../shared/sdk';
+import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, ItemApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
@@ -13,12 +13,16 @@ export class CreateComponent implements OnInit {
     form: FormGroup;
     success_message = null;
     error_message = null;
-    showInfo;
+    showPrizePool;
+    showProduct;
+    users;
 
-    constructor(private wishlistApi: WishlistApi, private prizePoolApi: PrizePoolApi, private formBuilder: FormBuilder, private router: Router) { }
+    constructor(private wishlistApi: WishlistApi, private prizePoolApi: PrizePoolApi, private userApi: UserApi, 
+        private itemApi: ItemApi, private formBuilder: FormBuilder, private router: Router) { }
 
     ngOnInit() {
         this.createForm();
+        this.getAllUser();
     }
 
     private createForm() {
@@ -26,7 +30,12 @@ export class CreateComponent implements OnInit {
             name: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
             public: [false, [Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
             delegateTo: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
-            endDate: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
+            endDate: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            productName: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            productDescription: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            productAmount: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            productLink: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            productPosition: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
         });
     }
 
@@ -43,12 +52,6 @@ export class CreateComponent implements OnInit {
         if (!isValid)
             return;
 
-        /*let wishlist = new Wishlist();
-        wishlist.name = name;
-        wishlist.isPublic = isPublic;
-
-        wishlist.owner = parseInt(localStorage.getItem("id"), 10);*/
-
         let wishlist = {
             name : name,
             isPublic : isPublic,
@@ -58,15 +61,32 @@ export class CreateComponent implements OnInit {
         this.wishlistApi.create(wishlist).subscribe((item) => {
             console.log(item);
 
-            if(this.showInfo)
+            if(this.showPrizePool)
             {
                 var date = new Date(this.form.controls.endDate.value);
+                const emailDelagated = this.form.controls.delegateTo.value;
+
+                let managerId = -1;
+                let index = 0;
+
+                this.users.forEach(element => {
+                    if(element.email == emailDelagated) {
+                        managerId = element.id;
+                    }
+                    index++;
+                });
+    
+                if(managerId == -1) {
+                    this.error_message = "Invalid email address.";
+                    this.success_message = null;
+                    return;
+                }
 
                 let prizePool ={
-                    managerId : 1,
+                   // managerId : 1,
                     endDate : date.getTime(),
                     wishlist : item['id'],
-                    manager : 1
+                    manager : managerId
                 };
 
                 this.prizePoolApi.create(prizePool).subscribe((prizePool) => {
@@ -85,6 +105,44 @@ export class CreateComponent implements OnInit {
                 this.success_message = "The wishlist has been successfully created !";
             }
 
+            if(this.showProduct)
+            {
+                const productName = this.form.controls.productName.value;
+                const productDescription = this.form.controls.productDescription.value;
+                const productAmount = this.form.controls.productAmount.value;
+                const productLink = this.form.controls.productLink.value;
+                const productPosition = this.form.controls.productPosition.value;
+
+
+                // TODO : FAIRE UN CHECK SI LA POSIITION DE L'ITEM EST DISPO
+
+                let product ={
+                    name : productName,
+                    description : productDescription,
+                    amount : productAmount,
+                    link : productLink,
+                    position : productPosition,
+                    wishlist : item['id']
+                };
+
+                this.itemApi.create(product).subscribe((prod) => {
+                    console.log(prod);
+                    this.error_message = null;
+                    this.success_message = "The wishlist has been successfully created !";
+                }, error => {
+                    console.log(error);
+                    this.error_message = "An error has occurred with the product. Please check your information and try again.";
+                    this.success_message = null;
+                });
+            }
+            else
+            {
+                this.error_message = null;
+                this.success_message = "The wishlist has been successfully created !";
+            }
+
+
+
             
         }, error => {
             console.log(error);
@@ -100,6 +158,17 @@ export class CreateComponent implements OnInit {
         }
 
         return true;
+    }
+
+    getAllUser() {
+        this.userApi.findAll().subscribe((users) => {
+            console.log(users);
+            this.users = users;
+
+        }, error => {
+            console.log(error);
+        });
+
     }
 
 }

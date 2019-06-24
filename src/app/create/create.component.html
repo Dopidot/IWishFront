@@ -27,16 +27,35 @@
 
             <hr>
 
-            <div class="customCheckbox" style="cursor: pointer;" (click)="showInfo = !showInfo;">
+            <div class="customCheckbox" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
                 <div style="display: inline-block; width: 94%;">Prize Pool</div>
-                <fa class="mr-2" name="sort-down" style="margin-left: 5px;"></fa>
+                <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
             </div>
 
-            <div *ngIf="showInfo">
-                    <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to">
-                    <input type="date" class="customCheckbox" value="2019-07-22" name="endDate" formControlName="endDate" min="2019-01-01" max="2020-12-31">
+            <div *ngIf="showPrizePool">
+                    <label style="margin-left : 5px;">End date</label>
+                    <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" 
+                        value="2019-07-22" name="endDate" formControlName="endDate" min="2019-01-01" max="2020-12-31">
+                    <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate's email">
                     
             </div>
+
+            <div class="customCheckbox" style="cursor: pointer;" (click)="showProduct = !showProduct;">
+                    <div style="display: inline-block; width: 94%;">Products</div>
+                    <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                    <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
+                </div>
+    
+                <div *ngIf="showProduct">
+                    <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Product name">
+                    <input type="text" class="fadeIn second" id="productDescription" name="productDescription" formControlName="productDescription" placeholder="Product description">
+                    <input type="number" class="customCheckbox" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Product amount">
+                    <!-- <input type="text" class="fadeIn second" id="productImage" name="productImage" formControlName="productImage" placeholder="Product image"> -->
+                    <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Product link">
+                    <input type="number" class="customCheckbox" id="productPosition" name="productPosition" formControlName="productPosition" placeholder="Product position">
+                    
+                </div>
 
             
 

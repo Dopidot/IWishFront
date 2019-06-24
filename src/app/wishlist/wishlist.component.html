@@ -3,10 +3,11 @@
 
         <div style="margin: 20px; font-weight: 600; text-transform: uppercase;">
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Wishlist</h5>
-            <label (click)="showDetail = false; loadForm()" *ngIf="showDetail" class="btn-close">
-                Close<fa class="mr-2" name="times" style="margin-left: 5px;"></fa>
+            <label (click)="showDetail = false; showPrizePool = false; showProduct = false; loadForm()" *ngIf="showDetail" class="btn-close">
+                Close
+                <fa class="mr-2" name="times" style="margin-left: 5px;"></fa>
             </label>
-            
+
         </div>
 
         <div class="alert alert-success" role="alert" *ngIf="success_message != null">
@@ -28,30 +29,30 @@
             </thead>
             <tbody>
                 <tr *ngFor="let item of items">
-                    <th scope="row">{{item.wishlist.name}}</th>
+                    <th scope="row">{{item.name}}</th>
                     <!-- <td>1000.00 €</td> -->
-                    <td *ngIf="item.wishlist.isPublic">Yes</td>
-                    <td *ngIf="!item.wishlist.isPublic">No</td>
-                    <td>{{item.wishlist.ownerName}}</td>
+                    <td *ngIf="item.isPublic">Yes</td>
+                    <td *ngIf="!item.isPublic">No</td>
+                    <td>{{item.owner.firstName}}</td>
                     <td style="text-align: left;">
                         <button type="button" class="btn btn-primary" (click)="showDetail = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="eye" style="margin-right: 5px;"></fa>Show
                         </button>
-                        <button type="button" class="btn btn-success" style="margin-left: 5px;">
+                        <button type="button" class="btn btn-success" style="margin-left: 5px;" *ngIf="currentUserId == item.owner.id">
                             <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa>Edit
                         </button>
-                        <button type="button" class="btn btn-danger" style="margin-left: 5px;" (click)="removeItem(item.wishlist.id, item.id)">
+                        <!-- <button type="button" class="btn btn-danger" style="margin-left: 5px;" (click)="removeItem(item.wishlist.id, item.id)">
                             <fa class="mr-2" name="remove" style="margin-right: 5px;"></fa>Remove
-                        </button>
+                        </button> -->
                     </td>
                 </tr>
             </tbody>
         </table>
 
         <div *ngIf="showDetail">
-            <form [formGroup]="form" (ngSubmit)="showDetail = false;">
-                <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name">
-    
+            <form [formGroup]="form" (ngSubmit)="showDetail = false; showPrizePool = false; showProduct = false;">
+                <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name" [readonly]="true">
+
                 <div class="customCheckbox">
                     Public
                     <label class="switch">
@@ -59,19 +60,37 @@
                         <span class="slider"></span>
                     </label>
                 </div>
-    
+
                 <hr>
-    
-                <div class="customCheckbox" style="cursor: pointer;" (click)="showInfo = !showInfo;">
+
+                <div class="customCheckbox" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
                     <div style="display: inline-block; width: 94%;">Prize Pool</div>
-                    <fa class="mr-2" name="sort-down" style="margin-left: 5px;"></fa>
+                    <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                    <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
                 </div>
-    
-                <div *ngIf="showInfo">
-                        <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to">
-                        <input type="date" class="customCheckbox" value="2019-07-22" name="endDate" formControlName="endDate" min="2019-01-01" max="2020-12-31">
-                        
+
+                <div *ngIf="showPrizePool">
+                    <label style="margin-left : 5px;">End date</label>
+                    <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" value="2019-07-22" name="endDate"
+                        formControlName="endDate" min="2019-01-01" max="2020-12-31" [readonly]="true">
+                    <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to"
+                        [readonly]="true">
+
                 </div>
+
+                <div class="customCheckbox" style="cursor: pointer;" (click)="showProduct = !showProduct;">
+                    <div style="display: inline-block; width: 94%;">Products</div>
+                    <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                    <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
+                </div>
+
+                <div *ngIf="showProduct" style="margin-bottom: 10px;">
+                    <div *ngFor="let item of selectedItem.items" style="text-align: left; margin-left: 30%;">
+                        <fa class="mr-2" name="arrow-right" style="margin-right: 7px;"></fa>
+                        {{item.name}}
+                    </div>
+                </div>
+
                 <input type="submit" class="fadeIn fourth" value="Back">
             </form>
         </div>
