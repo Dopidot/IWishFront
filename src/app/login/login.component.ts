@@ -4,7 +4,6 @@ import { User, LoginResponse, AuthenticationApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
-
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -20,9 +19,6 @@ export class LoginComponent implements OnInit {
     }
 
     ngOnInit() {
-        /*this.itemApi.findAll().subscribe((data: Item[]) => {  
-            console.log("data:", data);  
-        });*/
         this.createForm();
     }
 
@@ -34,8 +30,8 @@ export class LoginComponent implements OnInit {
     }
 
     onSubmit() {
-        // toto2@yopmail.com
-        // toto
+        // toto@gmail.com
+        // toto123
         const email = this.loginForm.controls.email.value;
         const password = this.loginForm.controls.password.value;
 
@@ -44,26 +40,16 @@ export class LoginComponent implements OnInit {
             console.log("is auth ? ", this.authApi.isAuthenticated()); // true
             this.error_message = null;
             this.success_message = "Successfully connected !";
-            //let loginResponse = login.body;
             let loginResponse = login;
-            //this.authApi.storeInfo(loginResponse as LoginResponse);
             console.log(login);
 
             if (this.authApi.isAuthenticated()) { // true
                 this.authApi.getCurrentUser().subscribe((user: User) => {
                     console.log("current user = ", user); // affichage de toutes les infos de l'user
-                    localStorage.setItem("firstname", user.firstName);
-                    console.log(localStorage.getItem("firstname"));
                     this.router.navigate([''])
                 })
             }
 
-            /*this.authApi.logout().then( () => {
-              this.authApi.removeInfo(); // supprime le token (avec id et email de l'user) du localStorage
-              console.log("logout ok");
-              console.log("current user id = ", this.authApi.getCurrentUserId()); // répond 0 je ne sais pas encore pourquoi...
-              console.log("is auth ? ", this.authApi.isAuthenticated()); // false
-            })*/
         }, error => {
             if (error.status == 401)
             {

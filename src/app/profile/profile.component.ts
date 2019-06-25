@@ -70,7 +70,8 @@ export class ProfileComponent implements OnInit {
         this.userApi.update(this.currentUser.id, request).subscribe((item) => {
             this.success_message = "Your profile has been successfully updated.";
             this.error_message = null;
-
+            localStorage.setItem("email", item.email);
+            localStorage.setItem("firstName", item.firstName);
         }, error => {
             console.log(error);
             this.success_message = null;

@@ -9,20 +9,20 @@ import { Router } from '@angular/router';
 })
 export class AppComponent {
 
-    firstname;
+    firstName;
 
     constructor(private authApi: AuthenticationApi,
         private router: Router) {
     }
 
     isConnected() {
-        this.firstname = localStorage.getItem("firstname");
-        return this.firstname;
+        this.firstName = localStorage.getItem("firstName");
+        return this.firstName;
     }
 
     logout() {
         this.authApi.logout().subscribe((item) => {
-            this.firstname = undefined;
+            this.firstName = undefined;
             this.router.navigate(['login'])
         })
     }

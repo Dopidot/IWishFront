@@ -4,7 +4,7 @@ export class LoginResponse {
     user: {
         id: number;
         email: string;
+        firstName: string;
         token: string;
-        firstname: string;
     }
 }

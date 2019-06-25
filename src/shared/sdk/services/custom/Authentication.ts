@@ -50,14 +50,14 @@ export class AuthenticationApi {
         localStorage.setItem("token", loginResponse.user.token);
         localStorage.setItem("id", loginResponse.user.id.toString());
         localStorage.setItem("email", loginResponse.user.email);
-        localStorage.setItem("firstname", loginResponse.user.firstname);
+        localStorage.setItem("firstName", loginResponse.user.firstName);
     }
 
     private removeInfo(): void {
         localStorage.removeItem("token");
         localStorage.removeItem("id");
         localStorage.removeItem("email");
-        localStorage.removeItem("firstname");
+        localStorage.removeItem("firstName");
     }
 
     public getToken(): string {
