@@ -18,10 +18,8 @@ export class Donation {
     createdAt: number;
     updatedAt: number;
     amount: number;
-    prizePool?: PrizePool;
-    prizePoolId?: number;
-    donor?: User;
-    donorId?: number;
+    prizePool?: PrizePool | number;
+    donor?: User | number;
 
     public static getModelName() {
         return "Donation";

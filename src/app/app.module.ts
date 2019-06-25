@@ -9,7 +9,6 @@ import { SDKBrowserModule } from '../shared/sdk';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { CreateComponent } from './create/create.component';
-import { WishlistComponent } from './wishlist/wishlist.component';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ProfileComponent } from './profile/profile.component';
 import { DonationComponent } from './donation/donation.component';
@@ -21,7 +20,6 @@ import { HomeComponent } from './home/home.component';
     LoginComponent,
     SignupComponent,
     CreateComponent,
-    WishlistComponent,
     ProfileComponent,
     DonationComponent,
     HomeComponent

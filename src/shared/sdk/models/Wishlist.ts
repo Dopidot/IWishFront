@@ -9,10 +9,8 @@ export interface WishlistInterface {
     name: string;
     isPublic: boolean;
     items?: Item[];
-    prizePool?: PrizePool;
-    prizePoolId?: number;
-    owner?: User;
-    ownerId?: number;
+    prizePool?: PrizePool | number;
+    owner?: User | number;
     participants?: User[];
 }
 
@@ -23,10 +21,8 @@ export class Wishlist {
     name: string;
     isPublic: boolean;
     items?: Item[];
-    prizePool?: PrizePool;
-    prizePoolId?: number;
-    owner?: User;
-    ownerId?: number;
+    prizePool?: PrizePool | number;
+    owner?: User | number;
     participants?: User[];
 
     public static getModelName() {
@@ -52,6 +48,16 @@ export class Wishlist {
                     name: 'participants',
                     type: 'User[]',
                     model: 'User'
+                },
+                items: {
+                    name: 'items',
+                    type: 'Item[]',
+                    model: 'Item'
+                },
+                prizePool: {
+                    name: 'prizePool',
+                    type: 'PrizePool',
+                    model: 'PrizePool'
                 }
             }
         }

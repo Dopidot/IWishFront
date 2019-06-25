@@ -12,8 +12,7 @@ export interface ItemInterface {
     image: string;
     link: string;
     position: number;
-    wishlist?: Wishlist;
-    wishlistId?: number;
+    wishlist?: Wishlist | number;
 }
 
 export class Item {
@@ -26,8 +25,7 @@ export class Item {
     image: string;
     link: string;
     position: number;
-    wishlist?: Wishlist;
-    wishlistId?: number;
+    wishlist?: Wishlist | number;
 
     public static getModelName() {
         return "Item";

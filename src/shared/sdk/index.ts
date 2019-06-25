@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { AuthenticationApi, CategoryApi, DonationApi, ItemApi, PrizePoolApi, UserApi, WishlistApi } from './services';
 
-
 @NgModule({
   imports:      [ CommonModule, HttpClientModule ],
   declarations: [ ],

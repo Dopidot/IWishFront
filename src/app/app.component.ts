@@ -21,8 +21,7 @@ export class AppComponent {
     }
 
     logout() {
-        this.authApi.logout().then(() => {
-            this.authApi.removeInfo(); // remove user and token in localStorage
+        this.authApi.logout().subscribe((item) => {
             this.firstname = undefined;
             this.router.navigate(['login'])
         })

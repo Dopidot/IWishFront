@@ -8,10 +8,8 @@ export interface PrizePoolInterface {
     updatedAt?: number;
     endDate: number;
     closed: boolean;
-    wishlist?: Wishlist;
-    wishlistId?: number;
-    manager?: User;
-    managerId?: number;
+    wishlist?: Wishlist | number;
+    manager?: User | number;
     donations?: Donation[];
 }
 
@@ -21,10 +19,8 @@ export class PrizePool {
     updatedAt: number;
     endDate: number;
     closed: boolean = false;
-    wishlist?: Wishlist;
-    wishlistId?: number;
-    manager?: User;
-    managerId?: number;
+    wishlist?: Wishlist | number;
+    manager?: User | number;
     donations?: Donation[];
 
     public static getModelName() {

@@ -44,8 +44,9 @@ export class LoginComponent implements OnInit {
             console.log("is auth ? ", this.authApi.isAuthenticated()); // true
             this.error_message = null;
             this.success_message = "Successfully connected !";
-            let loginResponse = login.body;
-            this.authApi.storeInfo(loginResponse as LoginResponse);
+            //let loginResponse = login.body;
+            let loginResponse = login;
+            //this.authApi.storeInfo(loginResponse as LoginResponse);
             console.log(login);
 
             if (this.authApi.isAuthenticated()) { // true

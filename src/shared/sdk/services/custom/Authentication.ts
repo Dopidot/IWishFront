@@ -1,6 +1,6 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { User } from '../..';
 import { SailsConfig } from '../../sails.config';
 import { getToken } from '@angular/router/src/utils/preactivation';
@@ -18,27 +18,42 @@ export class AuthenticationApi {
     ) {
     }
       
-    public login(credentials: any): Observable<HttpResponse<Object>> {
-        return this.http.post<HttpResponse<Object>>(SailsConfig.getPath() + '/' + this.loginPath, credentials, {observe: 'response'});
-    }
-
-    public logout(): Promise<any> {
-        return new Promise( (resolve, reject) => {
-            this.http.get<any>(SailsConfig.getPath() + '/' + this.logoutPath)
-            .subscribe( () => {
-                this.removeInfo();
-                resolve();
+    public login(credentials: any): Observable<LoginResponse> {
+        return new Observable(observer => {
+            this.http.post<LoginResponse>(SailsConfig.getPath() + '/' + this.loginPath, credentials)
+            .subscribe( (loginResponse: LoginResponse) => {
+                this.storeInfo(loginResponse);
+                observer.next(loginResponse);
+            }, errResponse => {
+                observer.error(errResponse.error);
+            }, () => {
+                observer.complete();
             });
         });
     }
 
-    public storeInfo(loginResponse: LoginResponse): void {
+    public logout(): Observable<void> {
+        return new Observable(observer => {
+            this.http.get<any>(SailsConfig.getPath() + '/' + this.logoutPath)
+            .subscribe( () => {
+                this.removeInfo();
+                observer.next();
+            }, err => {
+                observer.error(err);
+            }, () => {
+                observer.complete();
+            });
+        });
+    }
+
+    private storeInfo(loginResponse: LoginResponse): void {
         localStorage.setItem("token", loginResponse.user.token);
         localStorage.setItem("id", loginResponse.user.id.toString());
         localStorage.setItem("email", loginResponse.user.email);
+        localStorage.setItem("firstname", loginResponse.user.firstname);
     }
 
-    public removeInfo(): void {
+    private removeInfo(): void {
         localStorage.removeItem("token");
         localStorage.removeItem("id");
         localStorage.removeItem("email");

@@ -59,6 +59,11 @@ export class User {
                     name: 'concernedWishlists',
                     type: 'Wishlist[]',
                     model: 'Wishlist'
+                },
+                categories: {
+                    name: 'categories',
+                    type: 'Category[]',
+                    model: 'Category'
                 }
             }
         }

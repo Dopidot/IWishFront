@@ -6,11 +6,12 @@ import { Category, Donation, User, Wishlist } from '../../models';
 
 @Injectable()
 export class UserApi extends BaseSailsApi {
-    private categoriesRelation: string = Category.getModelDefinition().plural.toLowerCase() + '/';
-    private managedPrizePoolsRelation: string = User.getModelDefinition().relations.managedPrizePools.name + '/';
+    private relations = User.getModelDefinition().relations;
+    private categoriesRelation: string = this.relations.categories.name + '/';
+    private managedPrizePoolsRelation: string = this.relations.managedPrizePools.name + '/';
     private donationsRelation: string = Donation.getModelDefinition().plural.toLowerCase() + '/';
     private wishlistsRelation: string = Wishlist.getModelDefinition().plural.toLowerCase() + '/';
-    private concernedWishlistsRelation: string = User.getModelDefinition().relations.concernedWishlists.name + '/';
+    private concernedWishlistsRelation: string = this.relations.concernedWishlists.name + '/';
 
     constructor(
         @Inject(HttpClient) protected http: HttpClient,
@@ -36,5 +37,13 @@ export class UserApi extends BaseSailsApi {
 
     public findByIdConcernedWishlists<Wishlist>(id: number): Observable<Wishlist[]> {
         return this.http.get<Wishlist[]>(this.actionUrl + id + '/' + this.concernedWishlistsRelation);
+    }
+
+    public updateByIdCategories(id: number, fk: number): Observable<User> {
+        return this.http.put<User>(this.actionUrl + id + '/' + this.categoriesRelation + fk, {});
+    }
+
+    public createWishlist<Wishlist>(id: number, data: Wishlist): Observable<Wishlist> {
+        return this.http.post<Wishlist>(this.actionUrl + id + '/' + this.wishlistsRelation, data);
     }
 }

@@ -77,7 +77,7 @@ export class CreateComponent implements OnInit {
                 });
     
                 if(managerId == -1) {
-                    this.error_message = "Invalid email address.";
+                    this.error_message = "Invalid email address, you must use the email address of a registered user.";
                     this.success_message = null;
                     return;
                 }
