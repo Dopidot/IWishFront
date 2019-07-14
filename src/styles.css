@@ -18,7 +18,7 @@ body {
 a {
     color: #2a3672;  
     display:inline-block;
-    text-decoration: none;
+    text-decoration: none !important;
     font-weight: 400;  
 }  
   

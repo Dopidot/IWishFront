@@ -14,6 +14,25 @@ import { ProfileComponent } from './profile/profile.component';
 import { DonationComponent } from './donation/donation.component';
 import { HomeComponent } from './home/home.component';
 
+import { SocialLoginModule, AuthServiceConfig } from "angularx-social-login";
+import { GoogleLoginProvider, FacebookLoginProvider } from "angularx-social-login";
+
+  
+let config = new AuthServiceConfig([
+    /*{
+      id: GoogleLoginProvider.PROVIDER_ID,
+      provider: new GoogleLoginProvider("Google-OAuth-Client-Id")
+    },*/
+    {
+      id: FacebookLoginProvider.PROVIDER_ID,
+      provider: new FacebookLoginProvider("1610597895739223")
+    }
+  ]);
+   
+  export function provideConfig() {
+    return config;
+  }
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,9 +49,15 @@ import { HomeComponent } from './home/home.component';
     AngularFontAwesomeModule,
     SDKBrowserModule.forRoot(),
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SocialLoginModule
   ],
-  providers: [],
+  providers: [
+      {
+        provide: AuthServiceConfig,
+        useFactory: provideConfig
+      }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
