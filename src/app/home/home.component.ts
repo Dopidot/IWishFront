@@ -17,6 +17,12 @@ export class HomeComponent implements OnInit {
     users;
     selectedItem;
     currentUserId = -1;
+    isEmpty = false;
+    editWishlist = false;
+    showInfo = false;
+    showPrizePool = false;
+    showProduct = false;
+
 
     constructor(private wishlistApi: WishlistApi, private userApi: UserApi, private prizePoolApi: PrizePoolApi, 
         private itemApi: ItemApi, private formBuilder: FormBuilder, private router: Router) { }
@@ -34,7 +40,7 @@ export class HomeComponent implements OnInit {
     private createForm() {
         this.form = this.formBuilder.group({
             name: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
-            public: [{value: '', disabled: true}, [Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
+            public: [{value: '', disabled: !this.editWishlist}, [Validators.required, Validators.minLength(4), Validators.maxLength(30)]],
             delegateTo: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             endDate: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productName: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
@@ -50,6 +56,12 @@ export class HomeComponent implements OnInit {
         this.wishlistApi.findAll().subscribe((item) => {
             console.log(item);
             this.items = item;
+            this.isEmpty = false;
+
+            if(item.length == 0)
+            {
+                this.isEmpty = true;
+            }
 
             this.userApi.findAll().subscribe((users) => {
                 console.log(users);
@@ -85,6 +97,9 @@ export class HomeComponent implements OnInit {
     }
 
     loadForm() {
+
+        this.createForm();
+
         this.form.controls['name'].setValue(this.selectedItem.name);
         this.form.controls['public'].setValue(this.selectedItem.isPublic);
 
@@ -94,7 +109,7 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    removeItem(wishlist) {
+    removeWishlist(wishlist) {
 
         console.log(wishlist);
 
@@ -146,6 +161,61 @@ export class HomeComponent implements OnInit {
             });
         }
 
+    }
+
+    removeProduct(productIndex) {
+
+        this.itemApi.delete(this.selectedItem.items[productIndex].id).subscribe((item) => {
+            console.log(item);
+            this.getAll();
+        }, error => {
+            console.log(error);
+        });
+
+    }
+
+    addProduct(wishlistId) {
+        const productName = this.form.controls.productName.value;
+        const productDescription = this.form.controls.productDescription.value;
+        const productAmount = this.form.controls.productAmount.value;
+        const productLink = this.form.controls.productLink.value;
+
+        let product ={
+            name : productName,
+            description : productDescription,
+            amount : productAmount,
+            link : productLink,
+            position : position,
+            wishlist : wishlistId
+        };
+
+        console.log(this.items)
+
+        
+
+        /*this.itemApi.create(product).subscribe((prod) => {
+            console.log(prod);
+            this.error_message = null;
+            this.success_message = "The wishlist has been successfully updated !";
+            
+            this.form.controls.productName.setValue("");
+            this.form.controls.productDescription.setValue("");
+            this.form.controls.productAmount.setValue("");
+            this.form.controls.productLink.setValue("");
+
+        }, error => {
+            console.log(error);
+            this.error_message = "An error has occurred with the product. Please check your information and try again.";
+            this.success_message = null;
+            return;
+        });*/
+
+    }
+
+    closeAll() {
+        this.showInfo = false; 
+        this.showPrizePool = false; 
+        this.showProduct = false;
     }
 
     getFormatedDate(timestamp) {

@@ -1,9 +1,9 @@
 <div class="wrapper fadeInDown">
-    <div id="formContent" [ngClass]="{'smallForm':showDetail}">
+    <div id="formContent" [ngClass]="{'smallForm': (showInfo || isNewProduct)}">
 
         <div style="margin: 20px; font-weight: 600; text-transform: uppercase;">
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Wishlist</h5>
-            <label (click)="showDetail = false; showPrizePool = false; showProduct = false; loadForm()" *ngIf="showDetail" class="btn-close">
+            <label (click)="showInfo = false; showPrizePool = false; showProduct = false; isNewProduct = false; loadForm()" *ngIf="showInfo || isNewProduct" class="btn-close">
                 Close
                 <fa class="mr-2" name="times" style="margin-left: 5px;"></fa>
             </label>
@@ -17,7 +17,11 @@
             {{error_message}}
         </div>
 
-        <table class="table table-hover" *ngIf="!showDetail">
+        <div *ngIf="isEmpty" style="margin-bottom: 20px;">
+            <hr> No wishlist was found.
+        </div>
+
+        <table class="table table-hover" *ngIf="!showInfo && !isEmpty && !isNewProduct">
             <thead>
                 <tr>
                     <th scope="col">Name</th>
@@ -35,13 +39,13 @@
                     <td *ngIf="!item.isPublic">No</td>
                     <td>{{item.owner.firstName}}</td>
                     <td style="text-align: left;">
-                        <button type="button" class="btn btn-primary" (click)="showDetail = true; selectedItem = item; loadForm();">
+                        <button type="button" class="btn btn-primary" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="eye" style="margin-right: 5px;"></fa>Show
                         </button>
-                        <button type="button" class="btn btn-success" style="margin-left: 5px;" *ngIf="currentUserId == item.owner.id">
+                        <button type="button" class="btn btn-success" style="margin-left: 5px;" *ngIf="currentUserId == item.owner.id" (click)="editWishlist = true; showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa>Edit
                         </button>
-                        <button type="button" class="btn btn-danger" style="margin-left: 5px;" *ngIf="currentUserId == item.owner.id" (click)="removeItem(item)">
+                        <button type="button" class="btn btn-danger" style="margin-left: 5px;" *ngIf="currentUserId == item.owner.id" (click)="removeWishlist(item)">
                             <fa class="mr-2" name="remove" style="margin-right: 5px;"></fa>Remove
                         </button>
                     </td>
@@ -49,49 +53,105 @@
             </tbody>
         </table>
 
-        <div *ngIf="showDetail">
-            <form [formGroup]="form" (ngSubmit)="showDetail = false; showPrizePool = false; showProduct = false;">
-                <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name" [readonly]="true">
+        <div *ngIf="showInfo || showProduct || isNewProduct">
+            <form [formGroup]="form">
 
-                <div class="customCheckbox">
-                    Public
-                    <label class="switch">
-                        <input type="checkbox" class="primary" formControlName="public">
-                        <span class="slider"></span>
-                    </label>
-                </div>
+                <div *ngIf="showInfo">
 
-                <hr>
+                    <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name" [readonly]="!editWishlist">
 
-                <div class="customCheckbox" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
-                    <div style="display: inline-block; width: 94%;">Prize Pool</div>
-                    <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
-                    <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
-                </div>
-
-                <div *ngIf="showPrizePool">
-                    <label style="margin-left : 5px;">End date</label>
-                    <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" value="2019-07-22" name="endDate"
-                        formControlName="endDate" min="2019-01-01" max="2020-12-31" [readonly]="true">
-                    <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to"
-                        [readonly]="true">
-
-                </div>
-
-                <div class="customCheckbox" style="cursor: pointer;" (click)="showProduct = !showProduct;">
-                    <div style="display: inline-block; width: 94%;">Products</div>
-                    <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
-                    <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
-                </div>
-
-                <div *ngIf="showProduct" style="margin-bottom: 10px;">
-                    <div *ngFor="let item of selectedItem.items" style="text-align: left; margin-left: 30%;">
-                        <fa class="mr-2" name="arrow-right" style="margin-right: 7px;"></fa>
-                        {{item.name}}
+                    <div class="customCheckbox">
+                        Public
+                        <label class="switch">
+                            <input type="checkbox" class="primary" formControlName="public">
+                            <span class="slider"></span>
+                        </label>
                     </div>
+
+                    <hr>
+
+                    <div class="customCheckbox" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
+                        <div style="display: inline-block; width: 94%;">Prize Pool</div>
+                        <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                        <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
+                    </div>
+
+                    <div *ngIf="showPrizePool">
+                        <label style="margin-left : 5px;">End date</label>
+                        <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" value="2019-07-22" name="endDate"
+                            formControlName="endDate" min="2019-01-01" max="2020-12-31" [readonly]="!editWishlist">
+                        <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to"
+                            [readonly]="!editWishlist">
+
+                    </div>
+
+                    <div class="customCheckbox" style="cursor: pointer;" (click)="showProduct = !showProduct;">
+                        <div style="display: inline-block; width: 94%;">Products</div>
+                        <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                        <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
+                    </div>
+
                 </div>
 
-                <input type="submit" class="fadeIn fourth" value="Back">
+                <div *ngIf="showProduct">
+
+                    <div *ngFor="let item of selectedItem.items; let index = index;" class="list-product">
+                        <div class="row">
+                            <div class="col">
+                                <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                    {{item.name}}
+                                </div>
+                                <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; font-size: 12px;"
+                                    title="{{item.description}}">
+                                    {{item.description}}
+                                </div>
+                                <div>Price : {{item.amount | number : '1.2-2'}} €</div>
+                            </div>
+                            <div class="col" style="text-align: center; position: relative;">
+                                <img class="img-product" src="https://www.witre.fi/img/S/GRP/ST/AIG2410402.jpg" alt="{{item.name}}" />
+                            </div>
+
+                        </div>
+
+                        <div *ngIf="editWishlist" style="text-align: center; margin-top: 10px;">
+                            <div style="width: 25%; display: inline-block;">
+                                <button class="btn btn-lg btn-block" type="submit" (click)="editProduct(index);" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
+                                    <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa> Edit
+                                </button>
+                            </div>
+                            <div style="width: 25%; display: inline-block; margin-left: 5px;">
+                                <button class="btn btn-lg btn-block" type="submit" (click)="removeProduct(index);" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
+                                    <fa class="mr-2" name="times" style="margin-right: 5px;"></fa> Remove
+                                </button>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row" style="padding-bottom: 25px; padding-top: 10px;" *ngIf="editWishlist">
+                        <div class="col-10 offset-1">
+                            <button class="btn btn-lg btn-block" type="submit" (click)="closeAll(); isNewProduct = true;" style="font-size: 15px; border: 1px solid #333;">
+                                <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Add new product
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <input *ngIf="showInfo" type="submit" class="fadeIn fourth" value="Back">
+
+                <!-- Add new product -->
+                <div *ngIf="isNewProduct">
+                    <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Product name">
+                    <input type="text" class="fadeIn second" id="productDescription" name="productDescription" formControlName="productDescription"
+                        placeholder="Product description">
+                    <input type="number" class="customCheckbox" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Product amount">
+                    <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Product link">
+
+                    <input type="submit" class="fadeIn fourth" value="Add" (click)="isNewProduct = false; addProduct(selectedItem.id);">
+                </div>
+
             </form>
         </div>
 

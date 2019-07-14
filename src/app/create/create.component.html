@@ -1,10 +1,14 @@
 <div class="wrapper fadeInDown">
     <div id="formContent">
-        <!-- Tabs Titles -->
 
-        <!-- Icon -->
         <div class="fadeIn first" style="margin: 20px; font-weight: 600;">
-            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Create new wishlist</h5>
+            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;" *ngIf="!isNewProduct">Create new wishlist</h5>
+            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;" *ngIf="isNewProduct">Create new product</h5>
+
+            <label (click)="isNewProduct = false;" *ngIf="isNewProduct" class="btn-close">
+                Close
+                <fa class="mr-2" name="times" style="margin-left: 5px;"></fa>
+            </label>
         </div>
 
         <div class="alert alert-success" role="alert" *ngIf="success_message != null">
@@ -15,53 +19,97 @@
         </div>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
-            <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name">
 
-            <div class="customCheckbox">
-                Public
-                <label class="switch">
-                    <input type="checkbox" class="primary" formControlName="public">
-                    <span class="slider"></span>
-                </label>
-            </div>
+            <div *ngIf="!isNewProduct">
 
-            <hr>
+                <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name">
 
-            <div class="customCheckbox" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
-                <div style="display: inline-block; width: 94%;">Prize Pool</div>
-                <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
-                <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
-            </div>
+                <div class="customCheckbox">
+                    Public
+                    <label class="switch">
+                        <input type="checkbox" class="primary" formControlName="public">
+                        <span class="slider"></span>
+                    </label>
+                </div>
 
-            <div *ngIf="showPrizePool">
+                <hr>
+
+                <div class="customCheckbox" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
+                    <div style="display: inline-block; width: 94%;">Prize Pool</div>
+                    <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                    <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
+                </div>
+
+                <div *ngIf="showPrizePool">
                     <label style="margin-left : 5px;">End date</label>
-                    <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" 
-                        value="2019-07-22" name="endDate" formControlName="endDate" min="2019-01-01" max="2020-12-31">
+                    <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" name="endDate"
+                        formControlName="endDate" min="{{today}}">
                     <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate's email">
-                    
-            </div>
 
-            <div class="customCheckbox" style="cursor: pointer;" (click)="showProduct = !showProduct;">
+                </div>
+
+                <div class="customCheckbox" style="cursor: pointer;" (click)="showProduct = !showProduct;">
                     <div style="display: inline-block; width: 94%;">Products</div>
                     <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
                     <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
                 </div>
-    
+
                 <div *ngIf="showProduct">
-                    <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Product name">
-                    <input type="text" class="fadeIn second" id="productDescription" name="productDescription" formControlName="productDescription" placeholder="Product description">
-                    <input type="number" class="customCheckbox" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Product amount">
-                    <!-- <input type="text" class="fadeIn second" id="productImage" name="productImage" formControlName="productImage" placeholder="Product image"> -->
-                    <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Product link">
-                    <input type="number" class="customCheckbox" id="productPosition" name="productPosition" formControlName="productPosition" placeholder="Product position">
-                    
+
+                    <div *ngFor="let item of products" class="list-product">
+
+                        <div class="row">
+                            <div class="col">
+                                <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                    {{item.name}}
+                                </div>
+                                <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; font-size: 12px;"
+                                    title="{{item.description}}">
+                                    {{item.description}}
+                                </div>
+                                <div>Price : {{item.amount | number : '1.2-2'}} €</div>
+                            </div>
+                            <div class="col" style="text-align: center; position: relative;">
+                                <img class="img-product" src="https://www.witre.fi/img/S/GRP/ST/AIG2410402.jpg" alt="{{item.name}}" />
+                            </div>
+
+                        </div>
+
+                        <div style="width: 25%; margin: auto;">
+                            <button class="btn btn-lg btn-block" type="submit" (click)="removeProduct($index);" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
+                                <fa class="mr-2" name="times" style="margin-right: 5px;"></fa> Remove
+                            </button>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row" style="padding-bottom: 25px; padding-top: 10px;">
+                        <div class="col-10 offset-1">
+                            <button class="btn btn-lg btn-block" type="submit" (click)="isNewProduct = true;" style="font-size: 15px; border: 1px solid #333;">
+                                <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Add new product
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
-            
+                <input type="submit" class="fadeIn fourth" value="Create">
+
+            </div>
 
 
+            <!-- Add new product -->
+            <div *ngIf="isNewProduct">
+                <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Product name">
+                <input type="text" class="fadeIn second" id="productDescription" name="productDescription" formControlName="productDescription"
+                    placeholder="Product description">
+                <input type="number" class="customCheckbox" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Product amount">
+                <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Product link">
 
-            <input type="submit" class="fadeIn fourth" value="Create">
+                <input type="submit" class="fadeIn fourth" value="Add" (click)="isNewProduct = false; addProduct();">
+            </div>
+
         </form>
 
     </div>

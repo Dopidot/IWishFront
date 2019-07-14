@@ -16,9 +16,17 @@ export class CreateComponent implements OnInit {
     showPrizePool;
     showProduct;
     users;
+    products = [];
+    today = this.getFormatedDate(new Date());
 
-    constructor(private wishlistApi: WishlistApi, private prizePoolApi: PrizePoolApi, private userApi: UserApi, 
-        private itemApi: ItemApi, private formBuilder: FormBuilder, private router: Router) { }
+    constructor(
+        private wishlistApi: WishlistApi, 
+        private prizePoolApi: PrizePoolApi, 
+        private userApi: UserApi, 
+        private itemApi: ItemApi, 
+        private formBuilder: FormBuilder, 
+        private router: Router
+    ) { }
 
     ngOnInit() {
         this.createForm();
@@ -34,8 +42,7 @@ export class CreateComponent implements OnInit {
             productName: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productDescription: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productAmount: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
-            productLink: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
-            productPosition: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
+            productLink: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
         });
     }
 
@@ -93,6 +100,7 @@ export class CreateComponent implements OnInit {
                     console.log(prizePool);
                     this.error_message = null;
                     this.success_message = "The wishlist has been successfully created !";
+                    this.resetForm();
                 }, error => {
                     console.log(error);
                     this.error_message = "An error has occurred with the prize pool. Please check your information and try again.";
@@ -103,52 +111,91 @@ export class CreateComponent implements OnInit {
             {
                 this.error_message = null;
                 this.success_message = "The wishlist has been successfully created !";
+                this.resetForm();
             }
 
-            if(this.showProduct)
+
+            if(this.products.length > 0)
             {
-                const productName = this.form.controls.productName.value;
-                const productDescription = this.form.controls.productDescription.value;
-                const productAmount = this.form.controls.productAmount.value;
-                const productLink = this.form.controls.productLink.value;
-                const productPosition = this.form.controls.productPosition.value;
+                let position = 1;
+                this.products.forEach(element => {
+                    
 
+                    let product ={
+                        name : element.name,
+                        description : element.description,
+                        amount : element.amount,
+                        link : element.link,
+                        position : position,
+                        wishlist : item['id']
+                    };
 
-                // TODO : FAIRE UN CHECK SI LA POSIITION DE L'ITEM EST DISPO
+                    this.itemApi.create(product).subscribe((prod) => {
+                        console.log(prod);
+                        this.error_message = null;
+                        this.success_message = "The wishlist has been successfully created !";
+                        this.resetForm();
 
-                let product ={
-                    name : productName,
-                    description : productDescription,
-                    amount : productAmount,
-                    link : productLink,
-                    position : productPosition,
-                    wishlist : item['id']
-                };
+                    }, error => {
+                        console.log(error);
+                        this.error_message = "An error has occurred with the product. Please check your information and try again.";
+                        this.success_message = null;
+                        return;
+                    });
 
-                this.itemApi.create(product).subscribe((prod) => {
-                    console.log(prod);
-                    this.error_message = null;
-                    this.success_message = "The wishlist has been successfully created !";
-                }, error => {
-                    console.log(error);
-                    this.error_message = "An error has occurred with the product. Please check your information and try again.";
-                    this.success_message = null;
+                    position++;
+
                 });
             }
-            else
-            {
-                this.error_message = null;
-                this.success_message = "The wishlist has been successfully created !";
-            }
-
-
-
             
         }, error => {
             console.log(error);
             this.error_message = "An error has occurred with the wishlist. Please check your information and try again.";
             this.success_message = null;
         });
+    }
+
+    addProduct() {
+        const productName = this.form.controls.productName.value;
+        const productDescription = this.form.controls.productDescription.value;
+        const productAmount = this.form.controls.productAmount.value;
+        const productLink = this.form.controls.productLink.value;
+
+        let product ={
+            name : productName,
+            description : productDescription,
+            amount : productAmount,
+            link : productLink
+        };
+
+        this.products.push(product);
+
+        this.form.controls.productName.setValue("");
+        this.form.controls.productDescription.setValue("");
+        this.form.controls.productAmount.setValue("");
+        this.form.controls.productLink.setValue("");
+    }
+
+    removeProduct(index) {
+        this.products.splice(index, 1);
+    }
+
+    resetForm() {
+        this.form.controls.name.setValue("");
+        this.form.controls.public.setValue(false);
+
+        this.form.controls.endDate.setValue("");
+        this.form.controls.delegateTo.setValue("");
+
+        this.form.controls.productName.setValue("");
+        this.form.controls.productDescription.setValue("");
+        this.form.controls.productAmount.setValue("");
+        this.form.controls.productLink.setValue("");
+
+        this.products = [];
+
+        this.showProduct = false;
+        this.showPrizePool = false;
     }
 
     checkValidators() {
@@ -169,6 +216,25 @@ export class CreateComponent implements OnInit {
             console.log(error);
         });
 
+    }
+
+    getFormatedDate(timestamp) {
+        var date_not_formatted = new Date(timestamp);
+        
+        var formatted_string = date_not_formatted.getFullYear() + "-";
+        
+        if (date_not_formatted.getMonth() < 9) {
+          formatted_string += "0";
+        }
+        formatted_string += (date_not_formatted.getMonth() + 1);
+        formatted_string += "-";
+        
+        if(date_not_formatted.getDate() < 10) {
+          formatted_string += "0";
+        }
+        formatted_string += date_not_formatted.getDate();
+
+        return formatted_string;
     }
 
 }
