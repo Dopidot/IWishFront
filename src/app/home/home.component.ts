@@ -186,7 +186,7 @@ export class HomeComponent implements OnInit {
             description : productDescription,
             amount : productAmount,
             link : productLink,
-            position : position,
+            //position : position,
             wishlist : wishlistId
         };
 
