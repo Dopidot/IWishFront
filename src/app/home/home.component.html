@@ -80,7 +80,7 @@
                         <label style="margin-left : 5px;">End date</label>
                         <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" value="2019-07-22" name="endDate"
                             formControlName="endDate" min="2019-01-01" max="2020-12-31" [readonly]="!editWishlist">
-                        <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to"
+                        <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to (email address)"
                             [readonly]="!editWishlist">
 
                     </div>
@@ -139,7 +139,7 @@
 
                 </div>
 
-                <input *ngIf="showInfo" type="submit" class="fadeIn fourth" value="Back">
+                <input *ngIf="showInfo" type="submit" class="fadeIn fourth" value="Back" (click)="closeAll();">
 
                 <!-- Add new product -->
                 <div *ngIf="isNewProduct">

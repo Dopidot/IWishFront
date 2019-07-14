@@ -22,6 +22,7 @@ export class HomeComponent implements OnInit {
     showInfo = false;
     showPrizePool = false;
     showProduct = false;
+    isNewProduct = false;
 
 
     constructor(private wishlistApi: WishlistApi, private userApi: UserApi, private prizePoolApi: PrizePoolApi, 
@@ -216,6 +217,7 @@ export class HomeComponent implements OnInit {
         this.showInfo = false; 
         this.showPrizePool = false; 
         this.showProduct = false;
+        this.isNewProduct = false;
     }
 
     getFormatedDate(timestamp) {
