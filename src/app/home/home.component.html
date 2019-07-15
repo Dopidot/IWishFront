@@ -79,7 +79,7 @@
                     <div *ngIf="showPrizePool">
                         <label style="margin-left : 5px;">End date</label>
                         <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" value="2019-07-22" name="endDate"
-                            formControlName="endDate" min="2019-01-01" max="2020-12-31" [readonly]="!editWishlist">
+                            formControlName="endDate" min="{{today}}" [readonly]="!editWishlist">
                         <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to (email address)"
                             [readonly]="!editWishlist">
 
@@ -139,7 +139,8 @@
 
                 </div>
 
-                <input *ngIf="showInfo" type="submit" class="fadeIn fourth" value="Back" (click)="closeAll();">
+                <input *ngIf="showInfo && !editWishlist" type="submit" class="fadeIn fourth" value="Back" (click)="closeAll();">
+                <input *ngIf="editWishlist && !isNewProduct" type="submit" class="fadeIn fourth" value="Update" (click)="updateWishlist(selectedItem.id);">
 
                 <!-- Add new product -->
                 <div *ngIf="isNewProduct">
@@ -149,7 +150,7 @@
                     <input type="number" class="customCheckbox" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Product amount">
                     <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Product link">
 
-                    <input type="submit" class="fadeIn fourth" value="Add" (click)="isNewProduct = false; addProduct(selectedItem.id);">
+                    <input type="submit" class="fadeIn fourth" value="Add" (click)="addProduct(selectedItem.id);">
                 </div>
 
             </form>
