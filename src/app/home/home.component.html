@@ -1,9 +1,9 @@
 <div class="wrapper fadeInDown">
-    <div id="formContent" [ngClass]="{'smallForm': (showInfo || isNewProduct)}">
+    <div id="formContent" [ngClass]="{'smallForm': (showInfo || isNewProduct || isEditProduct)}">
 
         <div style="margin: 20px; font-weight: 600; text-transform: uppercase;">
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Wishlist</h5>
-            <label (click)="showInfo = false; showPrizePool = false; showProduct = false; isNewProduct = false; loadForm()" *ngIf="showInfo || isNewProduct" class="btn-close">
+            <label (click)="closeAll(); loadForm()" *ngIf="showInfo || isNewProduct || isEditProduct" class="btn-close">
                 Close
                 <fa class="mr-2" name="times" style="margin-left: 5px;"></fa>
             </label>
@@ -21,7 +21,7 @@
             <hr> No wishlist was found.
         </div>
 
-        <table class="table table-hover" *ngIf="!showInfo && !isEmpty && !isNewProduct">
+        <table class="table table-hover" *ngIf="!showInfo && !isEmpty && !isNewProduct && !isEditProduct">
             <thead>
                 <tr>
                     <th scope="col">Name</th>
@@ -39,13 +39,16 @@
                     <td *ngIf="!item.isPublic">No</td>
                     <td>{{item.owner.firstName}}</td>
                     <td style="text-align: left;">
-                        <button type="button" class="btn btn-primary" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm();">
+                        <button type="button" class="btn btn-primary" style="margin-right: 5px; margin-bottom: 5px;" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="eye" style="margin-right: 5px;"></fa>Show
                         </button>
-                        <button type="button" class="btn btn-success" style="margin-left: 5px;" *ngIf="currentUserId == item.owner.id" (click)="editWishlist = true; showInfo = true; selectedItem = item; loadForm();">
+                        <button type="button" class="btn btn-info" style="margin-right: 5px; margin-bottom: 5px;" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm();">
+                            <fa class="mr-2" name="share-alt" style="margin-right: 5px;"></fa>Share
+                        </button>
+                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id" (click)="editWishlist = true; showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa>Edit
                         </button>
-                        <button type="button" class="btn btn-danger" style="margin-left: 5px;" *ngIf="currentUserId == item.owner.id" (click)="removeWishlist(item)">
+                        <button type="button" class="btn btn-danger" style="margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id" (click)="removeWishlist(item)">
                             <fa class="mr-2" name="remove" style="margin-right: 5px;"></fa>Remove
                         </button>
                     </td>
@@ -53,7 +56,7 @@
             </tbody>
         </table>
 
-        <div *ngIf="showInfo || showProduct || isNewProduct">
+        <div *ngIf="showInfo || showProduct || isNewProduct || isEditProduct">
             <form [formGroup]="form">
 
                 <div *ngIf="showInfo">
@@ -115,7 +118,7 @@
 
                         <div *ngIf="editWishlist" style="text-align: center; margin-top: 10px;">
                             <div style="width: 25%; display: inline-block;">
-                                <button class="btn btn-lg btn-block" type="submit" (click)="editProduct(index);" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
+                                <button class="btn btn-lg btn-block" type="submit" (click)="productIndex = index; loadProductForm(index); closeAll(); isEditProduct = true;" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
                                     <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa> Edit
                                 </button>
                             </div>
@@ -140,17 +143,18 @@
                 </div>
 
                 <input *ngIf="showInfo && !editWishlist" type="submit" class="fadeIn fourth" value="Back" (click)="closeAll();">
-                <input *ngIf="editWishlist && !isNewProduct" type="submit" class="fadeIn fourth" value="Update" (click)="updateWishlist(selectedItem.id);">
+                <input *ngIf="editWishlist && !isNewProduct && !isEditProduct" type="submit" class="fadeIn fourth" value="Update" (click)="updateWishlist(selectedItem.id);">
 
                 <!-- Add new product -->
-                <div *ngIf="isNewProduct">
-                    <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Product name">
+                <div *ngIf="isNewProduct || isEditProduct">
+                    <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Name">
                     <input type="text" class="fadeIn second" id="productDescription" name="productDescription" formControlName="productDescription"
-                        placeholder="Product description">
-                    <input type="number" class="customCheckbox" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Product amount">
-                    <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Product link">
+                        placeholder="Description">
+                    <input type="number" class="customCheckbox" style="text-align: center;" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Amount in Euros">
+                    <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Link on Amazon website (optional)">
 
-                    <input type="submit" class="fadeIn fourth" value="Add" (click)="addProduct(selectedItem.id);">
+                    <input type="submit" class="fadeIn fourth" value="Add" *ngIf="isNewProduct" (click)="addProduct(selectedItem.id);">
+                    <input type="submit" class="fadeIn fourth" value="Update" *ngIf="isEditProduct" (click)="updateProduct(productIndex);">
                 </div>
 
             </form>

@@ -413,3 +413,18 @@ a {
     left: 0;
     right: 0;
 }
+
+.btn-upload {
+    font-size: 15px;
+    border: 1px solid #333;
+    cursor: pointer;
+    width: 135px;
+    position: absolute;
+    left: 0;
+    margin: 5px;
+    margin-left: 38px;
+    background-color: white;
+    height: 30px;
+    padding-top: 3px;
+    border-radius: 5px;
+}

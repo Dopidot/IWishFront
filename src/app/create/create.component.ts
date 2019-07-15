@@ -18,13 +18,14 @@ export class CreateComponent implements OnInit {
     users;
     products = [];
     today = this.getFormatedDate(new Date());
+    uploadedFiles: Array<File>;
 
     constructor(
-        private wishlistApi: WishlistApi, 
-        private prizePoolApi: PrizePoolApi, 
-        private userApi: UserApi, 
-        private itemApi: ItemApi, 
-        private formBuilder: FormBuilder, 
+        private wishlistApi: WishlistApi,
+        private prizePoolApi: PrizePoolApi,
+        private userApi: UserApi,
+        private itemApi: ItemApi,
+        private formBuilder: FormBuilder,
         private router: Router
     ) { }
 
@@ -60,16 +61,15 @@ export class CreateComponent implements OnInit {
             return;
 
         let wishlist = {
-            name : name,
-            isPublic : isPublic,
-            owner : parseInt(localStorage.getItem("id"), 10)
+            name: name,
+            isPublic: isPublic,
+            owner: parseInt(localStorage.getItem("id"), 10)
         };
 
         this.wishlistApi.create(wishlist).subscribe((item) => {
             console.log(item);
 
-            if(this.showPrizePool)
-            {
+            if (this.showPrizePool) {
                 var date = new Date(this.form.controls.endDate.value);
                 const emailDelagated = this.form.controls.delegateTo.value;
 
@@ -77,23 +77,23 @@ export class CreateComponent implements OnInit {
                 let index = 0;
 
                 this.users.forEach(element => {
-                    if(element.email == emailDelagated) {
+                    if (element.email == emailDelagated) {
                         managerId = element.id;
                     }
                     index++;
                 });
-    
-                if(managerId == -1) {
+
+                if (managerId == -1) {
                     this.error_message = "Invalid email address, you must use the email address of a registered user.";
                     this.success_message = null;
                     return;
                 }
 
-                let prizePool ={
-                   // managerId : 1,
-                    endDate : date.getTime(),
-                    wishlist : item['id'],
-                    manager : managerId
+                let prizePool = {
+                    // managerId : 1,
+                    endDate: date.getTime(),
+                    wishlist: item['id'],
+                    manager: managerId
                 };
 
                 this.prizePoolApi.create(prizePool).subscribe((prizePool) => {
@@ -107,31 +107,49 @@ export class CreateComponent implements OnInit {
                     this.success_message = null;
                 });
             }
-            else
-            {
+            else {
                 this.error_message = null;
                 this.success_message = "The wishlist has been successfully created !";
                 this.resetForm();
             }
 
 
-            if(this.products.length > 0)
-            {
+            if (this.products.length > 0) {
+
                 let position = 1;
                 this.products.forEach(element => {
-                    
 
-                    let product ={
-                        name : element.name,
-                        description : element.description,
-                        amount : element.amount,
-                        link : element.link,
-                        position : position,
-                        wishlist : item['id']
-                    };
+                    let product = new Item();
 
-                    this.itemApi.create(product).subscribe((prod) => {
+                    product.name = element.name;
+                    product.description = element.description;
+                    product.amount = element.amount;
+                    product.link = element.link;
+                    product.position = position;
+                    product.wishlist = item['id'];
+
+
+                    this.itemApi.createWithImageFile(product, element.file).subscribe((item: any) => {
+                        console.log("item stored with image = ", item);
+
+                        this.error_message = null;
+                        this.success_message = "The wishlist has been successfully created !";
+                        this.resetForm();
+
+                    }, err => {
+
+                        console.log(err);
+                        this.error_message = "An error has occurred with the product. Please check your information and try again.";
+                        this.success_message = null;
+                        return;
+
+                    }, () => {
+                        console.log('complete')
+                    });
+
+                    /*this.itemApi.create(product).subscribe((prod) => {
                         console.log(prod);
+                        
                         this.error_message = null;
                         this.success_message = "The wishlist has been successfully created !";
                         this.resetForm();
@@ -141,13 +159,13 @@ export class CreateComponent implements OnInit {
                         this.error_message = "An error has occurred with the product. Please check your information and try again.";
                         this.success_message = null;
                         return;
-                    });
+                    });*/
 
                     position++;
 
                 });
             }
-            
+
         }, error => {
             console.log(error);
             this.error_message = "An error has occurred with the wishlist. Please check your information and try again.";
@@ -160,12 +178,31 @@ export class CreateComponent implements OnInit {
         const productDescription = this.form.controls.productDescription.value;
         const productAmount = this.form.controls.productAmount.value;
         const productLink = this.form.controls.productLink.value;
+        let imageFile = null;
 
-        let product ={
-            name : productName,
-            description : productDescription,
-            amount : productAmount,
-            link : productLink
+        if (this.uploadedFiles.length > 0) 
+        {
+            imageFile = this.uploadedFiles[0];
+
+            this.itemApi.saveImageFile(imageFile).subscribe((prod) => {
+                console.log('Success');
+                console.log(prod);
+    
+    
+            }, error => {
+                console.log(error);
+                this.error_message = "An error has occurred with the product. Please check your information and try again.";
+                this.success_message = null;
+                return;
+            });
+        }
+
+        let product = {
+            name: productName,
+            description: productDescription,
+            amount: productAmount,
+            link: productLink,
+            file: imageFile
         };
 
         this.products.push(product);
@@ -193,6 +230,7 @@ export class CreateComponent implements OnInit {
         this.form.controls.productLink.setValue("");
 
         this.products = [];
+        this.uploadedFiles = [];
 
         this.showProduct = false;
         this.showPrizePool = false;
@@ -218,19 +256,23 @@ export class CreateComponent implements OnInit {
 
     }
 
+    fileChange(element) {
+        this.uploadedFiles = element.target.files;
+    }
+
     getFormatedDate(timestamp) {
         var date_not_formatted = new Date(timestamp);
-        
+
         var formatted_string = date_not_formatted.getFullYear() + "-";
-        
+
         if (date_not_formatted.getMonth() < 9) {
-          formatted_string += "0";
+            formatted_string += "0";
         }
         formatted_string += (date_not_formatted.getMonth() + 1);
         formatted_string += "-";
-        
-        if(date_not_formatted.getDate() < 10) {
-          formatted_string += "0";
+
+        if (date_not_formatted.getDate() < 10) {
+            formatted_string += "0";
         }
         formatted_string += date_not_formatted.getDate();
 

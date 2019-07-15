@@ -23,6 +23,7 @@ export class HomeComponent implements OnInit {
     showPrizePool = false;
     showProduct = false;
     isNewProduct = false;
+    isEditProduct = false;
     today = this.getFormatedDate(new Date());
 
 
@@ -110,14 +111,20 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    removeWishlist(wishlist) {
+    loadProductForm(productIndex) {
 
-        console.log(wishlist);
+        this.form.controls.productName.setValue(this.selectedItem.items[productIndex].name);
+        this.form.controls.productDescription.setValue(this.selectedItem.items[productIndex].description);
+        this.form.controls.productAmount.setValue(this.selectedItem.items[productIndex].amount);
+        this.form.controls.productLink.setValue(this.selectedItem.items[productIndex].link);
+
+    }
+
+    removeWishlist(wishlist) {
 
         let tempWishlist = wishlist;
 
         this.wishlistApi.delete(wishlist.id).subscribe((item) => {
-            console.log(item);
 
             let index = 0;
             let indexToDelete = -1;
@@ -133,6 +140,10 @@ export class HomeComponent implements OnInit {
 
             if (indexToDelete != -1) {
                 this.items.splice(indexToDelete, 1);
+            }
+
+            if (this.items.length == 0) {
+                this.isEmpty = true;
             }
 
         }, error => {
@@ -169,6 +180,8 @@ export class HomeComponent implements OnInit {
         this.itemApi.delete(this.selectedItem.items[productIndex].id).subscribe((item) => {
             this.error_message = null;
             this.success_message = "The product has been successfully deleted !";
+
+            this.selectedItem.items.splice(productIndex, 1);
 
             setTimeout(() => {
 
@@ -297,11 +310,50 @@ export class HomeComponent implements OnInit {
         });
     }
 
+    updateProduct(productIndex) {
+
+        const productName = this.form.controls.productName.value;
+        const productDescription = this.form.controls.productDescription.value;
+        const productAmount = this.form.controls.productAmount.value;
+        const productLink = this.form.controls.productLink.value;
+
+        let product = {
+            name: productName,
+            description: productDescription,
+            amount: productAmount,
+            link: productLink,
+            position: this.selectedItem.items[productIndex].position,
+            wishlist: this.selectedItem.id
+        };
+
+        this.itemApi.update(this.selectedItem.items[productIndex].id, product).subscribe((prod) => {
+
+            this.error_message = null;
+            this.success_message = "The product has been successfully updated !";
+
+            setTimeout(() => {
+
+                this.closeAll();
+                this.getAll();
+
+                this.success_message = null;
+            }, 2000);
+
+        }, error => {
+            console.log(error);
+            this.error_message = "An error has occurred with the product. Please check your information and try again.";
+            this.success_message = null;
+            return;
+        });
+
+    }
+
     closeAll() {
         this.showInfo = false;
         this.showPrizePool = false;
         this.showProduct = false;
         this.isNewProduct = false;
+        this.isEditProduct = false;
     }
 
     getFormatedDate(timestamp) {

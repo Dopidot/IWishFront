@@ -1,3 +1,7 @@
+/**
+ * npm install --save jwt-decode
+ */
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
@@ -6,6 +10,7 @@ import { SailsConfig } from '../../sails.config';
 import { getToken } from '@angular/router/src/utils/preactivation';
 import { UserApi } from './User';
 import { LoginResponse } from '../../models/LoginResponse';
+import * as jwt_decode from 'jwt-decode';
 
 @Injectable()
 export class AuthenticationApi {
@@ -50,14 +55,12 @@ export class AuthenticationApi {
         localStorage.setItem("token", loginResponse.user.token);
         localStorage.setItem("id", loginResponse.user.id.toString());
         localStorage.setItem("email", loginResponse.user.email);
-        localStorage.setItem("firstName", loginResponse.user.firstName);
     }
 
     private removeInfo(): void {
         localStorage.removeItem("token");
         localStorage.removeItem("id");
         localStorage.removeItem("email");
-        localStorage.removeItem("firstName");
     }
 
     public getToken(): string {
@@ -75,10 +78,32 @@ export class AuthenticationApi {
     }
 
     public isAuthenticated(): boolean {
-        return !(this.getToken() == null || this.getToken() == '' || this.getToken() == 'null');
+        return this.getToken() != null
+            && this.getToken() != '' 
+            && this.getToken() != 'null'
+            && !this.isTokenExpired();
     }
 
     public getCurrentUser(): Observable<User> {
         return this.userApi.findById(this.getCurrentUserId());
+    }
+
+    private getTokenExpirationDate(token: string): Date {
+        const decoded = jwt_decode(token);
+    
+        if (decoded.exp === undefined) return null;
+    
+        const date = new Date(0); 
+        date.setUTCSeconds(decoded.exp);
+        return date;
+    }
+
+    private isTokenExpired(token?: string): boolean {
+        if(!token) token = this.getToken();
+        if(!token) return true;
+    
+        const date = this.getTokenExpirationDate(token);
+        if(date === undefined) return false;
+        return !(date.valueOf() > new Date().valueOf());
     }
 }

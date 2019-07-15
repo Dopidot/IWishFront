@@ -101,12 +101,20 @@
 
             <!-- Add new product -->
             <div *ngIf="isNewProduct">
-                <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Product name">
+                <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Name">
                 <input type="text" class="fadeIn second" id="productDescription" name="productDescription" formControlName="productDescription"
-                    placeholder="Product description">
-                <input type="number" class="customCheckbox" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Product amount">
-                <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Product link">
+                    placeholder="Description">
+                <input type="number" class="customCheckbox" id="productAmount" style="text-align: center;" name="productAmount" formControlName="productAmount" placeholder="Amount in Euros">
+                <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Link on Amazon website (optional)">
 
+                <div style="position: relative;">
+
+                    <input type="file" class="customCheckbox" style="background-color: #f6f6f6;" id="inputGroupFile" aria-describedby="inputGroupFileAddon01" (change)="fileChange($event)">
+                    <label class="btn-upload" for="inputGroupFile">
+                        <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Browse
+                    </label>
+                </div>
+                
                 <input type="submit" class="fadeIn fourth" value="Add" (click)="isNewProduct = false; addProduct();">
             </div>
 
