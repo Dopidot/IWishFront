@@ -14,50 +14,44 @@ import { ProfileComponent } from './profile/profile.component';
 import { DonationComponent } from './donation/donation.component';
 import { HomeComponent } from './home/home.component';
 
-import { SocialLoginModule, AuthServiceConfig } from "angularx-social-login";
-import { GoogleLoginProvider, FacebookLoginProvider } from "angularx-social-login";
+import { SocialLoginModule, AuthServiceConfig, FacebookLoginProvider } from "angularx-social-login";
 
-  
 let config = new AuthServiceConfig([
-    /*{
-      id: GoogleLoginProvider.PROVIDER_ID,
-      provider: new GoogleLoginProvider("Google-OAuth-Client-Id")
-    },*/
     {
-      id: FacebookLoginProvider.PROVIDER_ID,
-      provider: new FacebookLoginProvider("1610597895739223")
+        id: FacebookLoginProvider.PROVIDER_ID,
+        provider: new FacebookLoginProvider("333677914209094")
     }
-  ]);
-   
-  export function provideConfig() {
+]);
+
+export function provideConfig() {
     return config;
-  }
+}
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    LoginComponent,
-    SignupComponent,
-    CreateComponent,
-    ProfileComponent,
-    DonationComponent,
-    HomeComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    AngularFontAwesomeModule,
-    SDKBrowserModule.forRoot(),
-    FormsModule,
-    ReactiveFormsModule,
-    SocialLoginModule
-  ],
-  providers: [
-      {
-        provide: AuthServiceConfig,
-        useFactory: provideConfig
-      }
-  ],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        LoginComponent,
+        SignupComponent,
+        CreateComponent,
+        ProfileComponent,
+        DonationComponent,
+        HomeComponent
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        AngularFontAwesomeModule,
+        SDKBrowserModule.forRoot(),
+        FormsModule,
+        ReactiveFormsModule,
+        SocialLoginModule
+    ],
+    providers: [
+        {
+            provide: AuthServiceConfig,
+            useFactory: provideConfig
+        }
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

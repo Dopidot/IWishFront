@@ -19,6 +19,7 @@ export class CreateComponent implements OnInit {
     products = [];
     today = this.getFormatedDate(new Date());
     uploadedFiles: Array<File>;
+    isLoading = false;
 
     constructor(
         private wishlistApi: WishlistApi,
@@ -117,6 +118,7 @@ export class CreateComponent implements OnInit {
             if (this.products.length > 0) {
 
                 let position = 1;
+
                 this.products.forEach(element => {
 
                     let product = new Item();
@@ -128,38 +130,40 @@ export class CreateComponent implements OnInit {
                     product.position = position;
                     product.wishlist = item['id'];
 
+                    if (element.file != null) {
+                        this.itemApi.createWithImageFile(product, element.file).subscribe((item: any) => {
+                            console.log("item stored with image = ", item);
 
-                    this.itemApi.createWithImageFile(product, element.file).subscribe((item: any) => {
-                        console.log("item stored with image = ", item);
+                            this.error_message = null;
+                            this.success_message = "The wishlist has been successfully created !";
+                            this.resetForm();
 
-                        this.error_message = null;
-                        this.success_message = "The wishlist has been successfully created !";
-                        this.resetForm();
+                        }, err => {
 
-                    }, err => {
+                            console.log(err);
+                            this.error_message = "An error has occurred with the product. Please check your information and try again.";
+                            this.success_message = null;
+                            return;
 
-                        console.log(err);
-                        this.error_message = "An error has occurred with the product. Please check your information and try again.";
-                        this.success_message = null;
-                        return;
+                        }, () => {
+                            console.log('complete')
+                        });
+                    }
+                    else {
+                        this.itemApi.create(product).subscribe((prod) => {
+                            console.log(prod);
 
-                    }, () => {
-                        console.log('complete')
-                    });
+                            this.error_message = null;
+                            this.success_message = "The wishlist has been successfully created !";
+                            this.resetForm();
 
-                    /*this.itemApi.create(product).subscribe((prod) => {
-                        console.log(prod);
-                        
-                        this.error_message = null;
-                        this.success_message = "The wishlist has been successfully created !";
-                        this.resetForm();
-
-                    }, error => {
-                        console.log(error);
-                        this.error_message = "An error has occurred with the product. Please check your information and try again.";
-                        this.success_message = null;
-                        return;
-                    });*/
+                        }, error => {
+                            console.log(error);
+                            this.error_message = "An error has occurred with the product. Please check your information and try again.";
+                            this.success_message = null;
+                            return;
+                        });
+                    }
 
                     position++;
 
@@ -180,37 +184,45 @@ export class CreateComponent implements OnInit {
         const productLink = this.form.controls.productLink.value;
         let imageFile = null;
 
-        if (this.uploadedFiles.length > 0) 
-        {
+        if (this.uploadedFiles != null) {
             imageFile = this.uploadedFiles[0];
 
-            this.itemApi.saveImageFile(imageFile).subscribe((prod) => {
-                console.log('Success');
-                console.log(prod);
-    
-    
+            this.itemApi.saveImageFile(imageFile).subscribe((res) => {
+
+                this.isLoading = true;
+
+                setTimeout(() => {
+
+                    let product = {
+                        name: productName,
+                        description: productDescription,
+                        amount: productAmount,
+                        link: productLink,
+                        file: imageFile,
+                        image: res.fileName
+                    };
+
+                    this.products.push(product);
+
+                    this.form.controls.productName.setValue("");
+                    this.form.controls.productDescription.setValue("");
+                    this.form.controls.productAmount.setValue("");
+                    this.form.controls.productLink.setValue("");
+
+                    this.isLoading = false;
+
+                }, 5000);
+
             }, error => {
                 console.log(error);
                 this.error_message = "An error has occurred with the product. Please check your information and try again.";
                 this.success_message = null;
+                this.isLoading = false;
                 return;
             });
         }
 
-        let product = {
-            name: productName,
-            description: productDescription,
-            amount: productAmount,
-            link: productLink,
-            file: imageFile
-        };
 
-        this.products.push(product);
-
-        this.form.controls.productName.setValue("");
-        this.form.controls.productDescription.setValue("");
-        this.form.controls.productAmount.setValue("");
-        this.form.controls.productLink.setValue("");
     }
 
     removeProduct(index) {

@@ -16,6 +16,7 @@
 
         <!-- Login Form -->
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
             <input type="text" id="email" class="fadeIn second" name="email" formControlName="email" placeholder="Email address">
             <input type="password" id="password" class="fadeIn third" name="password" formControlName="password" placeholder="Password">
             <input type="submit" class="fadeIn fourth" value="Login">
@@ -24,11 +25,12 @@
 
             <div class="row" style="padding-bottom: 25px;">
                 <div class="col-10 offset-1">
-                    <button class="btn btn-lg btn-facebook btn-block text-uppercase" type="submit" style="font-size: 15px">
+                    <button class="btn btn-lg btn-facebook btn-block text-uppercase" type="button" style="font-size: 15px" (click)="submitLogin();">
                         <fa class="mr-2" name="facebook" style="margin-right: 5px;"></fa> Login with Facebook
                     </button>
                 </div>
             </div>
+
         </form>
 
         <!-- Remind Passowrd -->

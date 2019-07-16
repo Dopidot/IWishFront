@@ -1,7 +1,3 @@
-/**
- * npm install --save jwt-decode
- */
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
@@ -55,12 +51,14 @@ export class AuthenticationApi {
         localStorage.setItem("token", loginResponse.user.token);
         localStorage.setItem("id", loginResponse.user.id.toString());
         localStorage.setItem("email", loginResponse.user.email);
+        localStorage.setItem("firstName", loginResponse.user.firstName);
     }
 
     private removeInfo(): void {
         localStorage.removeItem("token");
         localStorage.removeItem("id");
         localStorage.removeItem("email");
+        localStorage.removeItem("firstName");
     }
 
     public getToken(): string {

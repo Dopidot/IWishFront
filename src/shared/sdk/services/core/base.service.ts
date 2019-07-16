@@ -22,6 +22,10 @@ export class BaseSailsApi {
         return this.http.get<T>(this.actionUrl + id);
     }
 
+    public find<T>(filter: any = {}): Observable<T[]> {
+        return this.http.get<T[]>(this.actionUrl, {params: filter});
+    }
+
     public create<T>(data: T): Observable<T> {
         return this.http.post<T>(this.actionUrl, data);
     }

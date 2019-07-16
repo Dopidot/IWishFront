@@ -25,7 +25,7 @@ export class HomeComponent implements OnInit {
     isNewProduct = false;
     isEditProduct = false;
     today = this.getFormatedDate(new Date());
-
+    uploadedFiles: Array<File>;
 
     constructor(private wishlistApi: WishlistApi, private userApi: UserApi, private prizePoolApi: PrizePoolApi,
         private itemApi: ItemApi, private formBuilder: FormBuilder, private router: Router) { }
@@ -53,6 +53,7 @@ export class HomeComponent implements OnInit {
             productPosition: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
 
         });
+
     }
 
     getAll() {
@@ -109,6 +110,8 @@ export class HomeComponent implements OnInit {
             this.form.controls['delegateTo'].setValue(this.selectedItem.prizePool[0]['managerEmail']);
             this.form.controls['endDate'].setValue(this.getFormatedDate(this.selectedItem.prizePool[0].endDate));
         }
+
+        this.uploadedFiles = [];
     }
 
     loadProductForm(productIndex) {
@@ -202,6 +205,49 @@ export class HomeComponent implements OnInit {
         const productDescription = this.form.controls.productDescription.value;
         const productAmount = this.form.controls.productAmount.value;
         const productLink = this.form.controls.productLink.value;
+        let imageFile = null;
+
+        if (this.uploadedFiles != null) {
+            imageFile = this.uploadedFiles[0];
+
+            this.itemApi.saveImageFile(imageFile).subscribe((res) => {
+                
+                setTimeout(() => {
+
+                    let product = {
+                        name: productName,
+                        description: productDescription,
+                        amount: productAmount,
+                        link: productLink,
+                        file: imageFile,
+                        image: res.fileName
+                    };
+
+                    this.form.controls.productName.setValue("");
+                    this.form.controls.productDescription.setValue("");
+                    this.form.controls.productAmount.setValue("");
+                    this.form.controls.productLink.setValue("");
+
+                }, 5000);
+
+                this.saveAddingProduct(wishlistId, imageFile);
+
+            }, error => {
+                console.log(error);
+                this.error_message = "An error has occurred with the product. Please check your information and try again.";
+                this.success_message = null;
+                return;
+            });
+        }
+
+
+    }
+
+    saveAddingProduct(wishlistId, imageFile) {
+        const productName = this.form.controls.productName.value;
+        const productDescription = this.form.controls.productDescription.value;
+        const productAmount = this.form.controls.productAmount.value;
+        const productLink = this.form.controls.productLink.value;
 
         let maxPosition = 1;
 
@@ -211,40 +257,71 @@ export class HomeComponent implements OnInit {
             }
         });
 
-        let product = {
-            name: productName,
-            description: productDescription,
-            amount: productAmount,
-            link: productLink,
-            position: maxPosition,
-            wishlist: wishlistId
-        };
+        let product = new Item();
+        
+        product.name = productName;
+        product.description = productDescription;
+        product.amount = productAmount;
+        product.link = productLink;
+        product.position = maxPosition;
+        product.wishlist = wishlistId;
 
-        this.itemApi.create(product).subscribe((prod) => {
+        if (imageFile != null) {
+            this.itemApi.createWithImageFile(product, imageFile).subscribe((item: any) => {
 
-            this.error_message = null;
-            this.success_message = "The wishlist has been successfully updated !";
+                this.error_message = null;
+                this.success_message = "The wishlist has been successfully created !";
 
-            setTimeout(() => {
+                setTimeout(() => {
+                    
+                    this.form.controls.productName.setValue("");
+                    this.form.controls.productDescription.setValue("");
+                    this.form.controls.productAmount.setValue("");
+                    this.form.controls.productLink.setValue("");
+    
+                    this.closeAll();
+                    this.getAll();
+    
+                    this.success_message = null;
+                }, 2000);
 
-                this.form.controls.productName.setValue("");
-                this.form.controls.productDescription.setValue("");
-                this.form.controls.productAmount.setValue("");
-                this.form.controls.productLink.setValue("");
+            }, err => {
 
-                this.closeAll();
-                this.getAll();
-
+                console.log(err);
+                this.error_message = "An error has occurred with the product. Please check your information and try again.";
                 this.success_message = null;
-            }, 2000);
+                return;
 
-        }, error => {
-            console.log(error);
-            this.error_message = "An error has occurred with the product. Please check your information and try again.";
-            this.success_message = null;
-            return;
-        });
-
+            }, () => {
+                console.log('complete')
+            });
+        }
+        else {
+            this.itemApi.create(product).subscribe((prod) => {
+                
+                this.error_message = null;
+                this.success_message = "The wishlist has been successfully updated !";
+    
+                setTimeout(() => {
+    
+                    this.form.controls.productName.setValue("");
+                    this.form.controls.productDescription.setValue("");
+                    this.form.controls.productAmount.setValue("");
+                    this.form.controls.productLink.setValue("");
+    
+                    this.closeAll();
+                    this.getAll();
+    
+                    this.success_message = null;
+                }, 2000);
+    
+            }, error => {
+                console.log(error);
+                this.error_message = "An error has occurred with the product. Please check your information and try again.";
+                this.success_message = null;
+                return;
+            });
+        }
     }
 
     updateWishlist(wishlistId) {
@@ -346,6 +423,10 @@ export class HomeComponent implements OnInit {
             return;
         });
 
+    }
+
+    fileChange(element) {
+        this.uploadedFiles = element.target.files;
     }
 
     closeAll() {

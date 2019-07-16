@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { User, UserApi } from '../../shared/sdk';
+import { User, UserApi, AuthenticationApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
@@ -14,10 +14,27 @@ export class SignupComponent implements OnInit {
     success_message = null;
     error_message = null;
 
-    constructor(private userApi: UserApi, private formBuilder: FormBuilder, private router: Router) { }
+    constructor(
+        private userApi: UserApi,
+        private authApi: AuthenticationApi,
+        private formBuilder: FormBuilder,
+        private router: Router
+    ) { }
 
     ngOnInit() {
         this.createForm();
+
+        let userInfo = localStorage.getItem("userInfo");
+
+        if (userInfo != null) {
+            userInfo = JSON.parse(userInfo);
+
+            this.signUpForm.controls.firstName.setValue(userInfo['firstName']);
+            this.signUpForm.controls.lastName.setValue(userInfo['lastName']);
+            this.signUpForm.controls.email.setValue(userInfo['email']);
+
+            localStorage.removeItem("userInfo");
+        }
     }
 
     private createForm() {
@@ -43,11 +60,10 @@ export class SignupComponent implements OnInit {
 
         let isValid = this.checkValidators();
 
-        if(!isValid)
+        if (!isValid)
             return;
 
-        if(password1 != password2)
-        {
+        if (password1 != password2) {
             this.error_message = "The two passwords are not identical.";
             return;
         }
@@ -59,42 +75,51 @@ export class SignupComponent implements OnInit {
         user.password = password1;
 
         this.userApi.create(user).subscribe((item) => {
-            //console.log(item);
             this.success_message = "The user has been successfully created !";
+
+            this.loginUser(email, password1);
+
         }, error => {
-            //console.log(error);
+            console.log(error);
             this.error_message = "An error has occurred. Please check your information and try again.";
         });
     }
 
-    checkValidators()
-    {
-        if(this.signUpForm.controls.firstName.value.length < 4 || this.signUpForm.controls.firstName.value.length > 30)
-        {
+    loginUser(email, password) {
+        
+        this.authApi.login({ email: email, password: password }).subscribe((login) => {
+
+            this.router.navigate(['']);
+
+        }, error => {
+
+            this.error_message = "An error with the connection has occurred.";
+
+        });
+    }
+
+    checkValidators() {
+        if (this.signUpForm.controls.firstName.value.length < 4 || this.signUpForm.controls.firstName.value.length > 30) {
             this.error_message = "The firstname must be between 4 and 30 characters long.";
             return false;
         }
 
-        if(this.signUpForm.controls.lastName.value.length < 4 || this.signUpForm.controls.lastName.value.length > 30)
-        {
+        if (this.signUpForm.controls.lastName.value.length < 4 || this.signUpForm.controls.lastName.value.length > 30) {
             this.error_message = "The lastname must be between 4 and 30 characters long.";
             return false;
         }
 
-        if(this.signUpForm.controls.email.value.length < 8 || this.signUpForm.controls.email.value.length > 30)
-        {
+        if (this.signUpForm.controls.email.value.length < 8 || this.signUpForm.controls.email.value.length > 30) {
             this.error_message = "The email must be between 8 and 30 characters long.";
             return false;
         }
 
-        if(this.signUpForm.controls.password1.value.length < 6 || this.signUpForm.controls.password1.value.length > 20)
-        {
+        if (this.signUpForm.controls.password1.value.length < 6 || this.signUpForm.controls.password1.value.length > 20) {
             this.error_message = "The password must be between 6 and 20 characters long.";
             return false;
         }
 
-        if(this.signUpForm.controls.password2.value.length < 6 || this.signUpForm.controls.password2.value.length > 20)
-        {
+        if (this.signUpForm.controls.password2.value.length < 6 || this.signUpForm.controls.password2.value.length > 20) {
             this.error_message = "The confirmation password must be between 6 and 20 characters long.";
             return false;
         }

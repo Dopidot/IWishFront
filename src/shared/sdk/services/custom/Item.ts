@@ -15,7 +15,7 @@ export class ItemApi extends BaseSailsApi {
         @Inject(HttpClient) protected http: HttpClient,
     ) {
         super(http, 'items');
-        this.createImageFileUrl = SailsConfig.getPath() + '/save-file';
+        this.createImageFileUrl = SailsConfig.getPath() + '/save-image';
     }
 
     public saveImageFile(imageFile: File): Observable<FileResponse> {
