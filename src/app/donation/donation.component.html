@@ -1,3 +1,22 @@
-<p>
-  donation works!
-</p>
+<div class="wrapper fadeInDown">
+    <div id="formContent">
+
+        <div class="fadeIn first" style="margin: 20px; font-weight: 600;">
+            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Donation</h5>
+        </div>
+
+        <div class="alert alert-success" role="alert" *ngIf="success_message != null">
+            {{success_message}}
+        </div>
+        <div class="alert alert-danger" role="alert" *ngIf="error_message != null">
+            {{error_message}}
+        </div>
+
+        <!-- Set up a container element for the button -->
+        <div id="paypal-button-container"></div>
+
+        <button (click)="submitDonation()">Donate !</button>
+
+    </div>
+</div>
+

@@ -12,6 +12,59 @@
 
 <body>
     <app-root></app-root>
+
+    <!-- Include the PayPal JavaScript SDK 
+  client-id est l'id de l'application créée dans developer.paypal (via mon compte jeremieroland@orange.fr)-->
+    <script src="https://www.paypal.com/sdk/js?client-id=AU0bWy_C3EBJ0NTTtf_FlfKdPA1sTreLyJ-9S5bycKqgu6W69l_vQWQlfldWkMdFd7ycMa3sEV6aaksC&currency=EUR"></script>
+
+    <script>
+
+        let paypalInfo = localStorage.getItem("paypalDonation");
+
+        if (paypalInfo != null) {
+            paypalInfo = JSON.parse(paypalInfo);
+
+            var donationAmount = paypalInfo['donationAmount'] * 1;
+            console.log(donationAmount);
+            paypal.Buttons({
+                createOrder: function (data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: donationAmount
+                            }
+                        }]
+                    });
+                },
+                onApprove: function (data, actions) {
+                    return actions.order.capture().then(function (details) {
+                        // Code à exécuté une fois la transaction terminée
+                        alert('Transaction completed by ' + details.payer.name.given_name);
+                        //Sauvegarder le don en base
+
+                        const donorId = + paypalInfo['donorId'];
+                        const prizePoolId = + paypalInfo['prizePoolId'];
+
+                        localStorage.removeItem("paypalDonation");
+
+                        return fetch('http://localhost:1337/save-donation', {
+                            method: 'post',
+                            headers: {
+                                'content-type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                amount: donationAmount,
+                                donorId: donorId, // this.authApi.getCurrentUserId()
+                                prizePoolId: prizePoolId // à définir
+                            })
+                        });
+                    });
+                }
+            }).render('#paypal-button-container'); // id de la div contenant le bouton
+
+        }
+
+    </script>
 </body>
 
 </html>

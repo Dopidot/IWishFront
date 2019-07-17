@@ -12,4 +12,16 @@ export class DonationComponent implements OnInit {
   ngOnInit() {
   }
 
+  submitDonation() {
+      let saveData = {
+        donationAmount : 2,
+        donorId : 1,
+        prizePoolId : 1
+      };
+
+      localStorage.setItem("paypalDonation", JSON.stringify(saveData));
+
+      location.reload();
+  }
+
 }

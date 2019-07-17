@@ -47,7 +47,7 @@ export class AuthenticationApi {
         });
     }
 
-    private storeInfo(loginResponse: LoginResponse): void {
+    public storeInfo(loginResponse: LoginResponse): void {
         localStorage.setItem("token", loginResponse.user.token);
         localStorage.setItem("id", loginResponse.user.id.toString());
         localStorage.setItem("email", loginResponse.user.email);
