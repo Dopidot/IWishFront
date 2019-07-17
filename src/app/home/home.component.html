@@ -25,7 +25,6 @@
             <thead>
                 <tr>
                     <th scope="col">Name</th>
-                    <!-- <th scope="col">Prize pool</th> -->
                     <th scope="col">Public</th>
                     <th scope="col">Owner</th>
                     <th scope="col">Actions</th>
@@ -34,7 +33,6 @@
             <tbody>
                 <tr *ngFor="let item of items">
                     <th scope="row">{{item.name}}</th>
-                    <!-- <td>1000.00 €</td> -->
                     <td *ngIf="item.isPublic">Yes</td>
                     <td *ngIf="!item.isPublic">No</td>
                     <td>{{item.owner.firstName}}</td>
@@ -111,7 +109,10 @@
                                 <div>Price : {{item.amount | number : '1.2-2'}} €</div>
                             </div>
                             <div class="col" style="text-align: center; position: relative;">
-                                <img class="img-product" src="{{item.image}}" alt="{{item.name}}" />
+                                <a target="_blank" rel="noopener noreferrer" href="{{item.link}}">
+                                    <img class="img-product" src="{{item.image}}" alt="{{item.name}}" />
+                                </a>
+                                
                             </div>
 
                         </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ItemApi, Item } from '../../shared/sdk';
-import { User, LoginResponse, AuthenticationApi } from '../../shared/sdk';
+import { User, LoginResponse, AuthenticationApi, UserApi, } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
@@ -22,7 +22,8 @@ export class LoginComponent implements OnInit {
         private authApi: AuthenticationApi,
         private formBuilder: FormBuilder,
         private router: Router,
-        private authService: AuthService
+        private authService: AuthService,
+        private userApi: UserApi
     ) {
     }
 
@@ -42,16 +43,38 @@ export class LoginComponent implements OnInit {
         this.authService.signOut();
     }
 
-    submitLogin() {
+    submitFacebookLogin() {
         let socialPlatformProvider = FacebookLoginProvider.PROVIDER_ID;
 
         this.authService.signIn(socialPlatformProvider).then((userData) => {
             //this will return user data from facebook. What you need is a user token which you will send it to the server
-            console.log(userData);
-
-            localStorage.removeItem("userInfo");
-            localStorage.setItem("userInfo", JSON.stringify(userData));
-            this.router.navigate(['/signup']);
+            
+            this.userApi.find({email : userData.email}).subscribe((currentUser) => {
+                
+                if(currentUser.length > 0)
+                {
+                    let loginResponse = new LoginResponse();
+                    loginResponse['user'] = { id: null, email: null, firstName: null, token: null };
+    
+                    loginResponse.user.id = currentUser[0]['id'];
+                    loginResponse.user.email = userData.email;
+                    loginResponse.user.firstName = userData.firstName;
+                    loginResponse.user.token = userData.authToken;
+    
+                    this.authApi.storeInfo(loginResponse);
+                    this.router.navigate(['']);
+                }
+                else
+                {
+                    localStorage.removeItem("userInfo");
+                    localStorage.setItem("userInfo", JSON.stringify(userData));
+                    this.router.navigate(['/signup']);
+                }
+    
+            }, error => {
+                this.error_message = "An error has occurred. Please check the information of your facebook account.";
+                this.success_message = null;
+            }); 
 
         }, error => {
 
@@ -63,8 +86,6 @@ export class LoginComponent implements OnInit {
     }
 
     onSubmit() {
-        // toto@gmail.com
-        // toto123
         const email = this.loginForm.controls.email.value;
         const password = this.loginForm.controls.password.value;
 
