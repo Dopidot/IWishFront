@@ -105,11 +105,11 @@ a {
     -webkit-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
     margin: 15px 20px 20px 20px;
-    -webkit-transition: all 0.3s ease-in-out;
-    -moz-transition: all 0.3s ease-in-out;
-    -ms-transition: all 0.3s ease-in-out;
-    -o-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
+    -ms-transition: all 0.5s ease-in-out;
+    -o-transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
   }
   
   input[type=button]:hover, input[type=submit]:hover, input[type=reset]:hover  {
@@ -164,8 +164,8 @@ a {
   .fadeInDown {
     -webkit-animation-name: fadeInDown;
     animation-name: fadeInDown;
-    -webkit-animation-duration: 1s;
-    animation-duration: 1s;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
   }
@@ -211,33 +211,33 @@ a {
     -moz-animation-fill-mode:forwards;
     animation-fill-mode:forwards;
   
-    -webkit-animation-duration:1s;
-    -moz-animation-duration:1s;
-    animation-duration:1s;
+    -webkit-animation-duration:0.5s;
+    -moz-animation-duration:0.5s;
+    animation-duration:0.5s;
   }
   
   .fadeIn.first {
-    -webkit-animation-delay: 0.4s;
-    -moz-animation-delay: 0.4s;
-    animation-delay: 0.4s;
+    /*-webkit-animation-delay: 0.5s;
+    -moz-animation-delay: 0.5s;*/
+    /*animation-delay: 0.5s;*/
   }
   
   .fadeIn.second {
-    -webkit-animation-delay: 0.6s;
-    -moz-animation-delay: 0.6s;
-    animation-delay: 0.6s;
+    /*-webkit-animation-delay: 0.5s;
+    -moz-animation-delay: 0.5s;*/
+    /*animation-delay: 0.5s;*/
   }
   
   .fadeIn.third {
-    -webkit-animation-delay: 0.8s;
-    -moz-animation-delay: 0.8s;
-    animation-delay: 0.8s;
+    /*-webkit-animation-delay: 0.5s;
+    -moz-animation-delay: 0.5s;*/
+    /*animation-delay: 0.5s;*/
   }
   
   .fadeIn.fourth {
-    -webkit-animation-delay: 1s;
-    -moz-animation-delay: 1s;
-    animation-delay: 1s;
+    /*-webkit-animation-delay: 0.5s;
+    -moz-animation-delay: 0.5s;*/
+    /*animation-delay: 0.5s;*/
   }
   
   /* Simple CSS3 Fade-in Animation */
@@ -249,7 +249,7 @@ a {
     height: 2px;
     background-color: #2a3672;
     content: "";
-    transition: width 0.2s;
+    transition: width 0.5s;
   }
   
   .underlineHover:hover {
@@ -305,8 +305,8 @@ a {
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
   }
   
   .slider:before {
@@ -317,8 +317,8 @@ a {
     left: 4px;
     bottom: 4px;
     background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
   }
   
   input.default:checked + .slider {
@@ -370,15 +370,15 @@ a {
     margin: 5px;
     border: 2px solid #f6f6f6;
     transition: all 0.5s ease-in-out;
-    -webkit-animation-delay: 0.6s;
-    animation-delay: 0.6s;
+    /*-webkit-animation-delay: 0.5s;*/
+    /*animation-delay: 0.5s;*/
     opacity: 0;
     -webkit-animation: fadeIn ease-in 1;
     animation: fadeIn ease-in 1;
     -webkit-animation-fill-mode: forwards;
     animation-fill-mode: forwards;
-    -webkit-animation-duration: 2s;
-    animation-duration: 2s;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
   }
 
   .customTitle {
@@ -389,15 +389,15 @@ a {
     width: 83%;
     margin: 5px;
     transition: all 0.5s ease-in-out;
-    -webkit-animation-delay: 0.6s;
-    animation-delay: 0.6s;
+    /*-webkit-animation-delay: 0.5s;*/
+    /*animation-delay: 0.5s;*/
     opacity: 0;
     -webkit-animation: fadeIn ease-in 1;
     animation: fadeIn ease-in 1;
     -webkit-animation-fill-mode: forwards;
     animation-fill-mode: forwards;
-    -webkit-animation-duration: 2s;
-    animation-duration: 2s;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
   }
 
   .btn-close {
@@ -443,12 +443,18 @@ a {
     width: 135px;
     position: absolute;
     left: 0;
-    margin: 5px;
-    margin-left: 38px;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    margin-left: 51px;
     background-color: white;
     height: 30px;
     padding-top: 3px;
     border-radius: 5px;
+    transition: all 0.5s ease-in-out;
+    animation: fadeIn ease-in 1;
+    animation-fill-mode: forwards;
+    animation-duration: 0.2s;
 }
 
 .product-name {

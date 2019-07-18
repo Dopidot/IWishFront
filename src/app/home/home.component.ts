@@ -26,6 +26,8 @@ export class HomeComponent implements OnInit {
     isEditProduct = false;
     today = this.getFormatedDate(new Date());
     uploadedFiles: Array<File>;
+    userShared = [];
+    availableUser = [];
 
     constructor(
         private wishlistApi: WishlistApi, 
@@ -56,7 +58,8 @@ export class HomeComponent implements OnInit {
             productDescription: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productAmount: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productLink: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
-            productPosition: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
+            productPosition: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            userSearch: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
 
         });
     }
@@ -74,6 +77,7 @@ export class HomeComponent implements OnInit {
             this.userApi.findAll().subscribe((users) => {
                 console.log(users);
                 this.users = users;
+                this.userShared = Object.assign([], users);
 
                 let tempsItems = this.items;
                 let index = 0;
@@ -81,12 +85,14 @@ export class HomeComponent implements OnInit {
                 this.items.forEach(element => {
 
                     if (element.prizePool.length > 0) {
+
                         this.users.forEach(user => {
                             if (element.prizePool[0].manager == user.id) {
                                 tempsItems[index].prizePool[0]['managerName'] = user.firstName;
                                 tempsItems[index].prizePool[0]['managerEmail'] = user.email;
                             }
                         });
+
                     }
 
                     index++;
@@ -102,6 +108,75 @@ export class HomeComponent implements OnInit {
         }, error => {
             console.log(error);
         });
+    }
+
+    userFilter() {
+        const name = this.form.controls.userSearch.value.toUpperCase();
+        this.availableUser = [];
+
+        if(name.length == 0) {
+            this.users.forEach(user => {
+                let found = false;
+
+                this.userShared.forEach(shared => {
+                    if(user.id == shared.id)
+                    {
+                        found = true;
+                    }
+                });
+
+                if(!found) {
+                    this.availableUser.push(user);
+                }
+            });
+            
+            return;
+        }
+
+        this.users.forEach(element => {
+
+            let found = false;
+            
+            this.userShared.forEach(shared => {
+                if(element.id == shared.id)
+                {
+                    found = true;
+                }
+            });
+
+            if(!found) {
+                if(element.firstName.toUpperCase().indexOf(name) !== -1 || element.lastName.toUpperCase().indexOf(name) !== -1)
+                {
+                    this.availableUser.push(element);
+                }
+            }
+            
+        });
+    }
+
+    addUserShared(user) {
+        this.userShared.push(user);
+
+        let index = -1;
+        let i = 0;
+
+        // Remove the user in available users list
+        this.availableUser.forEach(element => {
+            if(element.id == user.id)
+            {
+                index = i; 
+            }
+            i++;
+        });
+
+        if(index != -1) {
+            this.availableUser.splice(index, 1);
+        }
+    }
+
+    removeUserShared(user, index) {
+        this.userShared.splice(index, 1);
+        this.availableUser.push(user);
     }
 
     loadForm() {

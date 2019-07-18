@@ -1,5 +1,5 @@
 <div class="wrapper fadeInDown">
-    <div id="formContent" [ngClass]="{'smallForm': (showInfo || isNewProduct || isEditProduct)}">
+    <div id="formContent" [ngClass]="{'smallForm': (showInfo || isNewProduct || isEditProduct || isShared)}">
 
         <div style="margin: 20px; font-weight: 600; text-transform: uppercase;">
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Wishlist</h5>
@@ -21,7 +21,7 @@
             <hr> No wishlist was found.
         </div>
 
-        <table class="table table-hover" *ngIf="!showInfo && !isEmpty && !isNewProduct && !isEditProduct">
+        <table class="table table-hover" *ngIf="!showInfo && !isEmpty && !isNewProduct && !isEditProduct && !isShared">
             <thead>
                 <tr>
                     <th scope="col">Name</th>
@@ -40,10 +40,11 @@
                         <button type="button" class="btn btn-primary" style="margin-right: 5px; margin-bottom: 5px;" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="eye" style="margin-right: 5px;"></fa>Show
                         </button>
-                        <button type="button" class="btn btn-info" style="margin-right: 5px; margin-bottom: 5px;" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm();">
+                        <button type="button" class="btn btn-info" style="margin-right: 5px; margin-bottom: 5px;" (click)="isShared = true; selectedItem = item;">
                             <fa class="mr-2" name="share-alt" style="margin-right: 5px;"></fa>Share
                         </button>
-                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id" (click)="editWishlist = true; showInfo = true; selectedItem = item; loadForm();">
+                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id"
+                            (click)="editWishlist = true; showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa>Edit
                         </button>
                         <button type="button" class="btn btn-danger" style="margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id" (click)="removeWishlist(item)">
@@ -54,7 +55,7 @@
             </tbody>
         </table>
 
-        <div *ngIf="showInfo || showProduct || isNewProduct || isEditProduct">
+        <div *ngIf="showInfo || showProduct || isNewProduct || isEditProduct || isShared">
             <form [formGroup]="form">
 
                 <div *ngIf="showInfo">
@@ -111,14 +112,15 @@
                                 <a target="_blank" rel="noopener noreferrer" href="{{item.link}}">
                                     <img class="img-product" src="{{item.image}}" alt="{{item.name}}" />
                                 </a>
-                                
+
                             </div>
 
                         </div>
 
                         <div *ngIf="editWishlist" style="text-align: center; margin-top: 10px;">
                             <div style="width: 25%; display: inline-block;">
-                                <button class="btn btn-lg btn-block" type="submit" (click)="productIndex = index; loadProductForm(index); closeAll(); isEditProduct = true;" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
+                                <button class="btn btn-lg btn-block" type="submit" (click)="productIndex = index; loadProductForm(index); closeAll(); isEditProduct = true;"
+                                    style="font-size: 12px; border: 1px solid #333; padding: 2px;">
                                     <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa> Edit
                                 </button>
                             </div>
@@ -150,11 +152,13 @@
                     <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Name">
                     <input type="text" class="fadeIn second" id="productDescription" name="productDescription" formControlName="productDescription"
                         placeholder="Description">
-                    <input type="number" class="customCheckbox" style="text-align: center;" id="productAmount" name="productAmount" formControlName="productAmount" placeholder="Amount in Euros">
+                    <input type="number" class="customCheckbox" style="text-align: center;" id="productAmount" name="productAmount" formControlName="productAmount"
+                        placeholder="Amount in Euros">
                     <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Link on Amazon website (optional)">
 
                     <div style="position: relative;" *ngIf="isNewProduct">
-                        <input type="file" class="customTitle" style="background-color: #f6f6f6;" id="inputGroupFile" aria-describedby="inputGroupFileAddon01" (change)="fileChange($event)">
+                        <input type="file" class="customTitle" style="background-color: #f6f6f6;" id="inputGroupFile" aria-describedby="inputGroupFileAddon01"
+                            (change)="fileChange($event)">
                         <label class="btn-upload" for="inputGroupFile">
                             <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Browse
                         </label>
@@ -162,6 +166,78 @@
 
                     <input type="submit" class="fadeIn fourth" value="Add" *ngIf="isNewProduct" (click)="addProduct(selectedItem.id);">
                     <input type="submit" class="fadeIn fourth" value="Update" *ngIf="isEditProduct" (click)="updateProduct(productIndex);">
+                </div>
+
+                <!-- Shared panel -->
+                <div *ngIf="isShared">
+                    <h4 class="customTitle" style="margin-bottom: 20px; text-align: center;">
+                        You can share your wishlist with the users of the application or with facebook.
+                    </h4>
+
+                    <input *ngIf="!isApplicationShared" type="button" class="fadeIn fourth" value="Share with users" (click)="isApplicationShared = true;">
+
+                    <button *ngIf="!isApplicationShared" class="btn btn-lg btn-facebook text-uppercase" type="button" style="font-size: 15px; width: 266px; margin-bottom: 30px;"
+                        (click)="null">
+
+                        <fa class="mr-2" name="facebook" style="margin-right: 5px;"></fa> Share with Facebook
+                    </button>
+
+                    <div *ngIf="isApplicationShared">
+                        <h4 style="font-size: 15px; width: 85%; text-align: left; margin: auto; text-decoration: underline; margin-bottom: 5px;">
+                            Share with users :
+                        </h4>
+                        <div style="width: 85%; margin: auto;" title="Click to remove a user">
+                            <span *ngFor="let user of userShared; let index = index;" style="margin-right: 10px; cursor: pointer;" (click)="removeUserShared(user, index);">
+                                {{user.firstName}} {{user.lastName}}
+                            </span>
+
+                            <span *ngIf="userShared.length == 0">No users found</span>
+                        </div>
+
+
+                        <hr style="margin: -1px; margin-top: 40px;">
+
+                        <div style="width: 95%; margin: auto;">
+                            <label style="margin-right: 10px;">Search</label>
+                            <input type="text" class="fadeIn second" style="padding: 0px; width: 74%" id="userSearch" name="userSearch" formControlName="userSearch"
+                                placeholder="User name" (ngModelChange)="userFilter();">
+
+                        </div>
+
+                        <div style="max-height: 60px; overflow-x: hidden; border: 1px solid #000000; border-color: rgba(0, 0, 0, 0.1); max-height: 160px;">
+                            <div class="row">
+                                <div class="col font-weight-bold">First name</div>
+                                <div class="col font-weight-bold">Last name</div>
+                                <div class="col font-weight-bold">Action</div>
+                            </div>
+
+                            <hr style="margin: 3px;">
+
+                            <div *ngFor="let item of availableUser">
+                                <div class="row">
+
+                                    <div class="col">{{item.firstName}}</div>
+                                    <div class="col">{{item.lastName}}</div>
+                                    <div class="col">
+                                        <button type="button" class="btn btn-success" style="padding: 0px 6px; font-size: 14px;" (click)="addUserShared(item);">
+                                            <fa name="plus"></fa>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <hr style="margin: 3px;">
+
+                            </div>
+
+                            <span *ngIf="availableUser.length == 0">No users found</span>
+
+                        </div>
+
+                        <input type="button" class="fadeIn fourth" value="Share" (click)="null">
+
+                    </div>
+
+
                 </div>
 
             </form>
