@@ -24,7 +24,7 @@
 
                 <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name">
 
-                <div class="customCheckbox">
+                <div class="customTitle">
                     Public
                     <label class="switch">
                         <input type="checkbox" class="primary" formControlName="public">
@@ -34,7 +34,7 @@
 
                 <hr>
 
-                <div class="customCheckbox" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
+                <div class="customTitle" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
                     <div style="display: inline-block; width: 94%;">Prize Pool</div>
                     <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
                     <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
@@ -48,7 +48,7 @@
 
                 </div>
 
-                <div class="customCheckbox" style="cursor: pointer;" (click)="showProduct = !showProduct;">
+                <div class="customTitle" style="cursor: pointer;" (click)="showProduct = !showProduct;">
                     <div style="display: inline-block; width: 94%;">Products</div>
                     <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
                     <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
@@ -70,7 +70,7 @@
                                 <div>Price : {{item.amount | number : '1.2-2'}} €</div>
                             </div>
                             <div class="col" style="text-align: center; position: relative;">
-                                <img class="img-product" src="{{item.image}}" alt="{{item.name}}" />
+                                <img class="img-product" src="{{item.imagePath}}" alt="{{item.name}}" />
                             </div>
 
                         </div>
@@ -106,7 +106,11 @@
                 <input type="text" class="fadeIn second" id="productName" name="productName" formControlName="productName" placeholder="Name">
                 <input type="text" class="fadeIn second" id="productDescription" name="productDescription" formControlName="productDescription"
                     placeholder="Description">
-                <input type="number" class="customCheckbox" id="productAmount" style="text-align: center;" name="productAmount" formControlName="productAmount" placeholder="Amount in Euros">
+
+                <input type="number" class="customCheckbox" id="productAmount" style="text-align: center; width: 73%;" name="productAmount" formControlName="productAmount" placeholder="Amount">
+                <input type="text" class="customCheckbox" style="text-align: center; width: 10%; padding: 15px 0px;" id="productCurrency"
+                    name="productCurrency" formControlName="productCurrency" placeholder="Currency" [readonly]="true">
+                
                 <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Link on Amazon website (optional)">
 
                 <div style="position: relative;">

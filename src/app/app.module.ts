@@ -12,6 +12,7 @@ import { CreateComponent } from './create/create.component';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ProfileComponent } from './profile/profile.component';
 import { DonationComponent } from './donation/donation.component';
+import { ContributionComponent } from './contribution/contribution.component';
 import { HomeComponent } from './home/home.component';
 
 import { SocialLoginModule, AuthServiceConfig, FacebookLoginProvider } from "angularx-social-login";
@@ -35,7 +36,8 @@ export function provideConfig() {
         CreateComponent,
         ProfileComponent,
         DonationComponent,
-        HomeComponent
+        HomeComponent,
+        ContributionComponent
     ],
     imports: [
         BrowserModule,

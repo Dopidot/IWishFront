@@ -61,7 +61,7 @@
 
                     <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name" [readonly]="!editWishlist">
 
-                    <div class="customCheckbox">
+                    <div class="customTitle">
                         Public
                         <label class="switch">
                             <input type="checkbox" class="primary" formControlName="public">
@@ -71,7 +71,7 @@
 
                     <hr>
 
-                    <div class="customCheckbox" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
+                    <div class="customTitle" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
                         <div style="display: inline-block; width: 94%;">Prize Pool</div>
                         <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
                         <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
@@ -86,7 +86,7 @@
 
                     </div>
 
-                    <div class="customCheckbox" style="cursor: pointer;" (click)="showProduct = !showProduct;">
+                    <div class="customTitle" style="cursor: pointer;" (click)="showProduct = !showProduct;">
                         <div style="display: inline-block; width: 94%;">Products</div>
                         <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
                         <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
@@ -99,11 +99,10 @@
                     <div *ngFor="let item of selectedItem.items; let index = index;" class="list-product">
                         <div class="row">
                             <div class="col">
-                                <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                <div class="product-name">
                                     {{item.name}}
                                 </div>
-                                <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; font-size: 12px;"
-                                    title="{{item.description}}">
+                                <div class="product-description" title="{{item.description}}">
                                     {{item.description}}
                                 </div>
                                 <div>Price : {{item.amount | number : '1.2-2'}} €</div>
@@ -155,7 +154,7 @@
                     <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Link on Amazon website (optional)">
 
                     <div style="position: relative;" *ngIf="isNewProduct">
-                        <input type="file" class="customCheckbox" style="background-color: #f6f6f6;" id="inputGroupFile" aria-describedby="inputGroupFileAddon01" (change)="fileChange($event)">
+                        <input type="file" class="customTitle" style="background-color: #f6f6f6;" id="inputGroupFile" aria-describedby="inputGroupFileAddon01" (change)="fileChange($event)">
                         <label class="btn-upload" for="inputGroupFile">
                             <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Browse
                         </label>

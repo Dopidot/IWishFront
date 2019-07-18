@@ -1,5 +1,5 @@
 <div class="wrapper fadeInDown">
-    <div id="formContent">
+    <div id="formContent" [ngClass]="{'smallForm': (showInfo || isDonation)}">
 
         <div class="fadeIn first" style="margin: 20px; font-weight: 600;">
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Donation</h5>
@@ -12,11 +12,122 @@
             {{error_message}}
         </div>
 
-        <!-- Set up a container element for the button -->
-        <div id="paypal-button-container"></div>
+        <div *ngIf="isEmpty" style="margin-bottom: 20px;">
+            <hr> No wishlist was found.
+        </div>
 
-        <button (click)="submitDonation()">Donate !</button>
+        <table class="table table-hover" *ngIf="!showInfo && !isEmpty && !isDonation">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Owner</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of items?.reverse()">
+                    <th scope="row">{{item.name}}</th>
+                    <td>{{item.owner.firstName}}</td>
+                    <td style="text-align: left;">
+                        <button type="button" class="btn btn-primary" style="margin-right: 5px; margin-bottom: 5px;" (click)="showInfo = true; selectedItem = item; loadForm();">
+                            <fa class="mr-2" name="eye" style="margin-right: 5px;"></fa>Show
+                        </button>
+                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" (click)="isDonation = true; selectedItem = item;">
+                            <fa class="mr-2" name="heart" style="margin-right: 5px;"></fa>Donate
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div *ngIf="showInfo || showProduct || isDonation">
+            <form [formGroup]="form">
+
+                <div *ngIf="showInfo">
+
+                    <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name" [readonly]="true">
+
+                    <div class="customTitle">
+                        Public
+                        <label class="switch">
+                            <input type="checkbox" class="primary" formControlName="public">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <hr>
+
+                    <div class="customTitle" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
+                        <div style="display: inline-block; width: 94%;">Prize Pool</div>
+                        <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                        <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
+                    </div>
+
+                    <div *ngIf="showPrizePool">
+                        <label style="margin-left : 5px;">End date</label>
+                        <input type="date" class="customCheckbox" style="width: 44%; margin-left: 120px; margin-right: 0px;" value="2019-07-22" name="endDate"
+                            formControlName="endDate" min="{{today}}" [readonly]="true">
+                        <input type="text" class="fadeIn second" id="delegateTo" name="delegateTo" formControlName="delegateTo" placeholder="Delegate to (email address)"
+                            [readonly]="true">
+
+                    </div>
+
+                    <div class="customTitle" style="cursor: pointer;" (click)="showProduct = !showProduct;">
+                        <div style="display: inline-block; width: 94%;">Products</div>
+                        <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
+                        <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
+                    </div>
+
+                </div>
+
+                <div *ngIf="showProduct">
+
+                    <div *ngFor="let item of selectedItem.items; let index = index;" class="list-product">
+                        <div class="row">
+
+                            <div class="col">
+                                <div class="product-name">
+                                    {{item.name}}
+                                </div>
+                                <div class="product-description" title="{{item.description}}">
+                                    {{item.description}}
+                                </div>
+                                <div>Price : {{item.amount | number : '1.2-2'}} €</div>
+                            </div>
+
+                            <div class="col" style="text-align: center; position: relative;">
+                                <a target="_blank" rel="noopener noreferrer" href="{{item.link}}">
+                                    <img class="img-product" src="{{item.image}}" alt="{{item.name}}" />
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div *ngIf="isDonation">
+                    <h4 class="customTitle" style="font-size: 14px; text-align: center; margin-bottom: 20px;">
+                        You will make a donation via the PayPal application for {{selectedItem.owner.firstName}}'s wishlist, called '{{selectedItem.name}}'.
+                    </h4>
+                    <input type="number" class="customCheckbox" style="text-align: center; width: 73%;" id="donationAmount" name="donationAmount"
+                        formControlName="donationAmount" placeholder="Donation amount" [readonly]="isInProgress">
+
+                    <input type="text" class="customCheckbox" style="text-align: center; width: 10%; padding: 15px 0px;" id="donationCurrency"
+                        name="donationCurrency" formControlName="donationCurrency" placeholder="Currency" [readonly]="true">
+
+                </div>
+
+                <input *ngIf="!isDonation" type="button" class="fadeIn fourth" value="Back" (click)="closeAll();">
+                <input *ngIf="isDonation && !isInProgress" type="button" class="fadeIn fourth" value="Validate" (click)="submitDonation();">
+
+                <input *ngIf="isDonation && isInProgress" type="button" class="fadeIn fourth" value="Cancel" (click)="cancelDonation();">
+
+            </form>
+        </div>
+
+        <!-- Set up a container element for the button -->
+        <div style="margin-top: 20px;" id="paypal-button-container"></div>
 
     </div>
 </div>
-

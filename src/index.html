@@ -14,7 +14,7 @@
     <app-root></app-root>
 
     <!-- Include the PayPal JavaScript SDK 
-  client-id est l'id de l'application créée dans developer.paypal (via mon compte jeremieroland@orange.fr)-->
+        client-id est l'id de l'application créée dans developer.paypal (via mon compte jeremieroland@orange.fr)-->
     <script src="https://www.paypal.com/sdk/js?client-id=AU0bWy_C3EBJ0NTTtf_FlfKdPA1sTreLyJ-9S5bycKqgu6W69l_vQWQlfldWkMdFd7ycMa3sEV6aaksC&currency=EUR"></script>
 
     <script>
@@ -38,29 +38,31 @@
                 },
                 onApprove: function (data, actions) {
                     return actions.order.capture().then(function (details) {
-                        // Code à exécuté une fois la transaction terminée
-                        alert('Transaction completed by ' + details.payer.name.given_name);
-                        //Sauvegarder le don en base
+                        // When the transaction is finished
+                        //alert('Transaction completed by ' + details.payer.name.given_name);
 
-                        const donorId = + paypalInfo['donorId'];
-                        const prizePoolId = + paypalInfo['prizePoolId'];
+                        const donorId = paypalInfo['donorId'] * 1;
+                        const prizePoolId = paypalInfo['prizePoolId'] * 1;
 
                         localStorage.removeItem("paypalDonation");
+                        localStorage.setItem("paypalConfirmation", "Success");
 
-                        return fetch('http://localhost:1337/save-donation', {
+                        window.location.replace("http://localhost:4200/contribution");
+
+                        return fetch('http://localhost:1337/donations', {
                             method: 'post',
                             headers: {
                                 'content-type': 'application/json'
                             },
                             body: JSON.stringify({
                                 amount: donationAmount,
-                                donorId: donorId, // this.authApi.getCurrentUserId()
-                                prizePoolId: prizePoolId // à définir
+                                prizePool: prizePoolId,
+                                donor: donorId
                             })
                         });
                     });
                 }
-            }).render('#paypal-button-container'); // id de la div contenant le bouton
+            }).render('#paypal-button-container'); // id of paypal button
 
         }
 

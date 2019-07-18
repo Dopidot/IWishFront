@@ -44,7 +44,8 @@ export class CreateComponent implements OnInit {
             productName: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productDescription: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productAmount: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
-            productLink: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
+            productLink: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            productCurrency: ['€', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
         });
     }
 
@@ -199,7 +200,7 @@ export class CreateComponent implements OnInit {
                         amount: productAmount,
                         link: productLink,
                         file: imageFile,
-                        image: res.fileName
+                        imagePath: res.fileName
                     };
 
                     this.products.push(product);

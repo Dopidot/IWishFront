@@ -27,8 +27,14 @@ export class HomeComponent implements OnInit {
     today = this.getFormatedDate(new Date());
     uploadedFiles: Array<File>;
 
-    constructor(private wishlistApi: WishlistApi, private userApi: UserApi, private prizePoolApi: PrizePoolApi,
-        private itemApi: ItemApi, private formBuilder: FormBuilder, private router: Router) { }
+    constructor(
+        private wishlistApi: WishlistApi, 
+        private userApi: UserApi, 
+        private prizePoolApi: PrizePoolApi,
+        private itemApi: ItemApi, 
+        private formBuilder: FormBuilder, 
+        private router: Router
+    ) { }
 
     ngOnInit() {
         this.createForm();
@@ -53,7 +59,6 @@ export class HomeComponent implements OnInit {
             productPosition: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
 
         });
-
     }
 
     getAll() {

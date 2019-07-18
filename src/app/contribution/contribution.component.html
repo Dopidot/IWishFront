@@ -1,0 +1,42 @@
+<div class="wrapper fadeInDown">
+    <div id="formContent">
+
+        <div class="fadeIn first" style="margin: 20px; font-weight: 600;">
+            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">My contributions</h5>
+
+            <label (click)="isNewProduct = false;" *ngIf="isNewProduct" class="btn-close">
+                Close
+                <fa class="mr-2" name="times" style="margin-left: 5px;"></fa>
+            </label>
+        </div>
+
+        <div class="alert alert-success" role="alert" *ngIf="success_message != null">
+            {{success_message}}
+        </div>
+        <div class="alert alert-danger" role="alert" *ngIf="error_message != null">
+            {{error_message}}
+        </div>
+
+        <div *ngIf="isEmpty" style="margin-bottom: 20px;">
+            <hr> No contribution was found.
+        </div>
+
+        <table class="table table-hover" *ngIf="!isEmpty">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of items">
+                    <th scope="row">{{item.prizePool.wishlistName}}</th>
+                    <td>{{item.amount | number : '1.2-2'}} €</td>
+                    <td>{{item.dateFormatted}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
