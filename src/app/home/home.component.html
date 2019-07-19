@@ -40,7 +40,7 @@
                         <button type="button" class="btn btn-primary" style="margin-right: 5px; margin-bottom: 5px;" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="eye" style="margin-right: 5px;"></fa>Show
                         </button>
-                        <button type="button" class="btn btn-info" style="margin-right: 5px; margin-bottom: 5px;" (click)="isShared = true; selectedItem = item;">
+                        <button type="button" class="btn btn-info" style="margin-right: 5px; margin-bottom: 5px;" (click)="isShared = true; selectedItem = item; userFilter(true);">
                             <fa class="mr-2" name="share-alt" style="margin-right: 5px;"></fa>Share
                         </button>
                         <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id"
@@ -200,7 +200,7 @@
                         <div style="width: 95%; margin: auto;">
                             <label style="margin-right: 10px;">Search</label>
                             <input type="text" class="fadeIn second" style="padding: 0px; width: 74%" id="userSearch" name="userSearch" formControlName="userSearch"
-                                placeholder="User name" (ngModelChange)="userFilter();">
+                                placeholder="User name" (ngModelChange)="userFilter(false);" autocomplete="off">
 
                         </div>
 
@@ -233,7 +233,7 @@
 
                         </div>
 
-                        <input type="button" class="fadeIn fourth" value="Share" (click)="null">
+                        <input type="button" class="fadeIn fourth" value="Share" (click)="saveUserShared();">
 
                     </div>
 

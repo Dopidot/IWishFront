@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, ItemApi } from '../../shared/sdk';
+import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, ItemApi, DonationApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
@@ -24,6 +24,8 @@ export class HomeComponent implements OnInit {
     showProduct = false;
     isNewProduct = false;
     isEditProduct = false;
+    isShared = false;
+    isApplicationShared = false;
     today = this.getFormatedDate(new Date());
     uploadedFiles: Array<File>;
     userShared = [];
@@ -33,19 +35,19 @@ export class HomeComponent implements OnInit {
         private wishlistApi: WishlistApi, 
         private userApi: UserApi, 
         private prizePoolApi: PrizePoolApi,
-        private itemApi: ItemApi, 
+        private itemApi: ItemApi,
+        private donationApi: DonationApi,
         private formBuilder: FormBuilder, 
         private router: Router
     ) { }
 
     ngOnInit() {
-        this.createForm();
-        this.getAll();
-
         if (localStorage.getItem("id") != null) {
             this.currentUserId = parseInt(localStorage.getItem("id"), 10);
         }
 
+        this.createForm();
+        this.getAll();
     }
 
     private createForm() {
@@ -65,44 +67,70 @@ export class HomeComponent implements OnInit {
     }
 
     getAll() {
-        this.wishlistApi.findAll().subscribe((item) => {
+
+        if (this.currentUserId == -1) {
+            this.error_message = "An error has occurred. Please try to reconnect to your account.";
+            this.success_message = null;
+
+            return;
+        }
+
+        this.wishlistApi.find( { owner : + this.currentUserId } ).subscribe((item) => {
             console.log(item);
             this.items = item;
             this.isEmpty = false;
 
             if (item.length == 0) {
                 this.isEmpty = true;
+
+                return;
             }
 
-            this.userApi.findAll().subscribe((users) => {
-                console.log(users);
-                this.users = users;
-                this.userShared = Object.assign([], users);
-
-                let tempsItems = this.items;
-                let index = 0;
-
-                this.items.forEach(element => {
-
-                    if (element.prizePool.length > 0) {
-
-                        this.users.forEach(user => {
-                            if (element.prizePool[0].manager == user.id) {
-                                tempsItems[index].prizePool[0]['managerName'] = user.firstName;
-                                tempsItems[index].prizePool[0]['managerEmail'] = user.email;
-                            }
-                        });
-
-                    }
-
-                    index++;
+            this.userApi.findByIdConcernedWishlists( this.currentUserId ).subscribe((wish) => {
+                wish.forEach(currentWish => {
+                    
+                    this.wishlistApi.findById( + currentWish['id'] ).subscribe((res) => {
+                        if ( + res['owner'].id != this.currentUserId)
+                        {
+                            this.items.push(res);
+                        }
+                    });
                 });
 
-                this.items = tempsItems;
-                console.log(this.items);
+                this.userApi.findAll().subscribe((users) => {
+
+                    this.users = users;
+    
+                    let tempsItems = this.items;
+                    let index = 0;
+    
+                    this.items.forEach(element => {
+    
+                        if (element.prizePool.length > 0) {
+    
+                            this.users.forEach(user => {
+                                if (element.prizePool[0].manager == user.id) {
+                                    tempsItems[index].prizePool[0]['managerName'] = user.firstName;
+                                    tempsItems[index].prizePool[0]['managerEmail'] = user.email;
+                                }
+                            });
+    
+                        }
+    
+                        index++;
+                    });
+    
+                    this.items = tempsItems;
+    
+                }, error => {
+                    console.log(error);
+                });
 
             }, error => {
                 console.log(error);
+                this.error_message = "An error has occurred with the wishlist. Please try to refresh your page.";
+                this.success_message = null;
+                return;
             });
 
         }, error => {
@@ -110,11 +138,16 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    userFilter() {
+    userFilter(firstLaunch) {
         const name = this.form.controls.userSearch.value.toUpperCase();
         this.availableUser = [];
 
         if(name.length == 0) {
+            if(firstLaunch)
+            {
+                this.loadUserShared();
+            }
+
             this.users.forEach(user => {
                 let found = false;
 
@@ -125,7 +158,7 @@ export class HomeComponent implements OnInit {
                     }
                 });
 
-                if(!found) {
+                if(!found && user.id != this.currentUserId && this.selectedItem.owner.id != user.id) {
                     this.availableUser.push(user);
                 }
             });
@@ -144,13 +177,23 @@ export class HomeComponent implements OnInit {
                 }
             });
 
-            if(!found) {
+            if(!found && element.id != this.currentUserId && this.selectedItem.owner.id != element.id) {
                 if(element.firstName.toUpperCase().indexOf(name) !== -1 || element.lastName.toUpperCase().indexOf(name) !== -1)
                 {
                     this.availableUser.push(element);
                 }
             }
             
+        });
+    }
+
+    loadUserShared() {
+        this.userShared = [];
+
+        this.selectedItem.participants.forEach(user => {
+            if(user.id != this.currentUserId && this.selectedItem.owner.id != user.id) {
+                this.userShared.push(user);
+            }
         });
     }
 
@@ -177,6 +220,55 @@ export class HomeComponent implements OnInit {
     removeUserShared(user, index) {
         this.userShared.splice(index, 1);
         this.availableUser.push(user);
+    }
+
+    saveUserShared() {
+
+        if (this.currentUserId == -1) {
+            this.error_message = "An error has occurred. Please try to reconnect to your account.";
+            this.success_message = null;
+
+            return;
+        }
+
+        // Remove all old users participation
+        this.selectedItem.participants.forEach(user => {
+            console.log(user);
+            this.userApi.updateByIdDeleteConcernedWishlist( + user.id, this.selectedItem.id).subscribe((res) => {
+                //console.log("Remove user id : " + user.id);
+            }, error => {
+                console.log(error);
+                this.error_message = "An error occurred while sharing with users. Please refresh your page and try again.";
+                this.success_message = null;
+                return;
+            });
+        });
+
+
+        // Save new users participation
+        this.userShared.forEach(user => {
+            this.userApi.updateByIdConcernedWishlists( + user.id, this.selectedItem.id).subscribe((res) => {
+                //console.log(res);
+            }, error => {
+                console.log(error);
+                this.error_message = "An error occurred while sharing with users. Please refresh your page and try again.";
+                this.success_message = null;
+                return;
+            });            
+        });
+
+        this.selectedItem.participants = Object.assign([], this.userShared);
+
+        this.success_message = "You have successfully updated the participation list !";
+        this.error_message = null;
+
+        setTimeout(() => {
+            
+            this.getAll();
+            this.closeAll();
+            this.success_message = null;
+
+        }, 2000);
     }
 
     loadForm() {
@@ -234,6 +326,23 @@ export class HomeComponent implements OnInit {
         });
 
         if (tempWishlist.prizePool.length > 0) {
+
+            this.donationApi.find( { prizePool: tempWishlist.prizePool[0].id } ).subscribe((item) => {
+                console.log(item);
+
+                item.forEach(donation => {
+                    this.donationApi.delete( + donation['id']).subscribe((item2) => {
+                        console.log(item2);
+        
+                    }, error => {
+                        console.log(error);
+                    });
+                });
+
+            }, error => {
+                console.log(error);
+            });
+
             this.prizePoolApi.delete(tempWishlist.prizePool[0].id).subscribe((item) => {
                 console.log(item);
 
@@ -515,6 +624,8 @@ export class HomeComponent implements OnInit {
         this.showProduct = false;
         this.isNewProduct = false;
         this.isEditProduct = false;
+        this.isShared = false;
+        this.isApplicationShared = false;
     }
 
     getFormatedDate(timestamp) {
