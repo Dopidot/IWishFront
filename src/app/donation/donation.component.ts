@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, ItemApi, AuthenticationApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-donation',
@@ -28,9 +29,17 @@ export class DonationComponent implements OnInit {
         private itemApi: ItemApi,
         private authApi: AuthenticationApi,
         private formBuilder: FormBuilder,
+        private router: Router
     ) { }
 
     ngOnInit() {
+
+        if (!this.authApi.isAuthenticated())
+        {
+            this.router.navigate(['/login']);
+            return;
+        }
+
         this.createForm();
         this.getAllWishlist();
     }

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DonationApi, WishlistApi, AuthenticationApi } from '../../shared/sdk';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-contribution',
@@ -17,9 +18,17 @@ export class ContributionComponent implements OnInit {
         private donationApi: DonationApi,
         private wishlistApi: WishlistApi,
         private authApi: AuthenticationApi,
+        private router: Router
     ) { }
 
     ngOnInit() {
+
+        if (!this.authApi.isAuthenticated())
+        {
+            this.router.navigate(['/login']);
+            return;
+        }
+
         this.checkDonationState();
         this.getAllContribution();
     }

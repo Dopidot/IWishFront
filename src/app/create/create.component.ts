@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, ItemApi } from '../../shared/sdk';
+import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, ItemApi, AuthenticationApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
@@ -27,11 +27,20 @@ export class CreateComponent implements OnInit {
         private userApi: UserApi,
         private itemApi: ItemApi,
         private formBuilder: FormBuilder,
+        private authApi : AuthenticationApi,
         private router: Router
     ) { }
 
     ngOnInit() {
+
         this.createForm();
+
+        if (!this.authApi.isAuthenticated())
+        {
+            this.router.navigate(['/login']);
+            return;
+        }
+
         this.getAllUser();
     }
 

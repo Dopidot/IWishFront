@@ -16,6 +16,7 @@ import { ContributionComponent } from './contribution/contribution.component';
 import { HomeComponent } from './home/home.component';
 
 import { SocialLoginModule, AuthServiceConfig, FacebookLoginProvider } from "angularx-social-login";
+import { InvitationComponent } from './invitation/invitation.component';
 
 let config = new AuthServiceConfig([
     {
@@ -37,7 +38,8 @@ export function provideConfig() {
         ProfileComponent,
         DonationComponent,
         HomeComponent,
-        ContributionComponent
+        ContributionComponent,
+        InvitationComponent
     ],
     imports: [
         BrowserModule,

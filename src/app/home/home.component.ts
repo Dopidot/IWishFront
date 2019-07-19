@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, ItemApi, DonationApi } from '../../shared/sdk';
+import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, ItemApi, DonationApi, AuthenticationApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
@@ -26,26 +26,37 @@ export class HomeComponent implements OnInit {
     isEditProduct = false;
     isShared = false;
     isApplicationShared = false;
+    deleteConfirmation = false;
     today = this.getFormatedDate(new Date());
     uploadedFiles: Array<File>;
     userShared = [];
     availableUser = [];
 
     constructor(
-        private wishlistApi: WishlistApi, 
-        private userApi: UserApi, 
+        private wishlistApi: WishlistApi,
+        private userApi: UserApi,
         private prizePoolApi: PrizePoolApi,
         private itemApi: ItemApi,
         private donationApi: DonationApi,
-        private formBuilder: FormBuilder, 
+        private authApi : AuthenticationApi,
+        private formBuilder: FormBuilder,
         private router: Router
     ) { }
 
     ngOnInit() {
-        if (localStorage.getItem("id") != null) {
+
+        if (!this.authApi.isAuthenticated())
+        {
+            this.router.navigate(['/login']);
+            return;
+        }
+
+        if (localStorage.getItem("id") == null) 
+        {
             this.currentUserId = parseInt(localStorage.getItem("id"), 10);
         }
 
+        this.checkInvitation();
         this.createForm();
         this.getAll();
     }
@@ -75,23 +86,16 @@ export class HomeComponent implements OnInit {
             return;
         }
 
-        this.wishlistApi.find( { owner : + this.currentUserId } ).subscribe((item) => {
+        this.wishlistApi.find({ owner: + this.currentUserId }).subscribe((item) => {
             console.log(item);
             this.items = item;
             this.isEmpty = false;
 
-            if (item.length == 0) {
-                this.isEmpty = true;
-
-                return;
-            }
-
-            this.userApi.findByIdConcernedWishlists( this.currentUserId ).subscribe((wish) => {
+            this.userApi.findByIdConcernedWishlists(this.currentUserId).subscribe((wish) => {
                 wish.forEach(currentWish => {
-                    
-                    this.wishlistApi.findById( + currentWish['id'] ).subscribe((res) => {
-                        if ( + res['owner'].id != this.currentUserId)
-                        {
+
+                    this.wishlistApi.findById(+ currentWish['id']).subscribe((res) => {
+                        if (+ res['owner'].id != this.currentUserId) {
                             this.items.push(res);
                         }
                     });
@@ -100,28 +104,33 @@ export class HomeComponent implements OnInit {
                 this.userApi.findAll().subscribe((users) => {
 
                     this.users = users;
-    
+
                     let tempsItems = this.items;
                     let index = 0;
-    
+
                     this.items.forEach(element => {
-    
+
                         if (element.prizePool.length > 0) {
-    
+
                             this.users.forEach(user => {
                                 if (element.prizePool[0].manager == user.id) {
                                     tempsItems[index].prizePool[0]['managerName'] = user.firstName;
                                     tempsItems[index].prizePool[0]['managerEmail'] = user.email;
                                 }
                             });
-    
+
                         }
-    
+
                         index++;
                     });
-    
+
                     this.items = tempsItems;
-    
+
+                    if (this.items.length == 0) {
+                        this.isEmpty = true;
+                        return;
+                    }
+
                 }, error => {
                     console.log(error);
                 });
@@ -138,13 +147,53 @@ export class HomeComponent implements OnInit {
         });
     }
 
+    checkInvitation() {
+        let wishlistId = localStorage.getItem("invitation");
+
+        if (wishlistId)
+        {
+            this.authApi.getCurrentUser().subscribe((user) => {
+                
+                // Remove participation if already exist
+                this.userApi.updateByIdDeleteConcernedWishlist( + user.id, + wishlistId).subscribe((res) => {
+                }, error => {
+                    console.log(error);
+                    this.error_message = "An error has occurred. Please refresh your page and try again.";
+                    localStorage.removeItem("invitation");
+    
+                    return;
+                });
+    
+                // Save the participation
+                this.userApi.updateByIdConcernedWishlists( + user.id, + wishlistId).subscribe((res) => {
+                    this.success_message = "You have successfully joined the wishlist !";
+                    
+                    setTimeout(() => {
+                        
+                        localStorage.removeItem("invitation");
+                        this.success_message = null;
+                        location.reload();
+            
+                    }, 2000);
+                }, error => {
+                    console.log(error);
+                    this.error_message = "An error has occurred. No wishlist found for the invitation.";
+                    this.success_message = null;
+                    localStorage.removeItem("invitation");
+    
+                    return;
+                });
+                
+            });
+        }
+    }
+
     userFilter(firstLaunch) {
         const name = this.form.controls.userSearch.value.toUpperCase();
         this.availableUser = [];
 
-        if(name.length == 0) {
-            if(firstLaunch)
-            {
+        if (name.length == 0) {
+            if (firstLaunch) {
                 this.loadUserShared();
             }
 
@@ -152,38 +201,35 @@ export class HomeComponent implements OnInit {
                 let found = false;
 
                 this.userShared.forEach(shared => {
-                    if(user.id == shared.id)
-                    {
+                    if (user.id == shared.id) {
                         found = true;
                     }
                 });
 
-                if(!found && user.id != this.currentUserId && this.selectedItem.owner.id != user.id) {
+                if (!found && user.id != this.currentUserId && this.selectedItem.owner.id != user.id) {
                     this.availableUser.push(user);
                 }
             });
-            
+
             return;
         }
 
         this.users.forEach(element => {
 
             let found = false;
-            
+
             this.userShared.forEach(shared => {
-                if(element.id == shared.id)
-                {
+                if (element.id == shared.id) {
                     found = true;
                 }
             });
 
-            if(!found && element.id != this.currentUserId && this.selectedItem.owner.id != element.id) {
-                if(element.firstName.toUpperCase().indexOf(name) !== -1 || element.lastName.toUpperCase().indexOf(name) !== -1)
-                {
+            if (!found && element.id != this.currentUserId && this.selectedItem.owner.id != element.id) {
+                if (element.firstName.toUpperCase().indexOf(name) !== -1 || element.lastName.toUpperCase().indexOf(name) !== -1) {
                     this.availableUser.push(element);
                 }
             }
-            
+
         });
     }
 
@@ -191,7 +237,7 @@ export class HomeComponent implements OnInit {
         this.userShared = [];
 
         this.selectedItem.participants.forEach(user => {
-            if(user.id != this.currentUserId && this.selectedItem.owner.id != user.id) {
+            if (user.id != this.currentUserId && this.selectedItem.owner.id != user.id) {
                 this.userShared.push(user);
             }
         });
@@ -205,14 +251,13 @@ export class HomeComponent implements OnInit {
 
         // Remove the user in available users list
         this.availableUser.forEach(element => {
-            if(element.id == user.id)
-            {
-                index = i; 
+            if (element.id == user.id) {
+                index = i;
             }
             i++;
         });
 
-        if(index != -1) {
+        if (index != -1) {
             this.availableUser.splice(index, 1);
         }
     }
@@ -234,7 +279,7 @@ export class HomeComponent implements OnInit {
         // Remove all old users participation
         this.selectedItem.participants.forEach(user => {
             console.log(user);
-            this.userApi.updateByIdDeleteConcernedWishlist( + user.id, this.selectedItem.id).subscribe((res) => {
+            this.userApi.updateByIdDeleteConcernedWishlist(+ user.id, this.selectedItem.id).subscribe((res) => {
                 //console.log("Remove user id : " + user.id);
             }, error => {
                 console.log(error);
@@ -247,14 +292,14 @@ export class HomeComponent implements OnInit {
 
         // Save new users participation
         this.userShared.forEach(user => {
-            this.userApi.updateByIdConcernedWishlists( + user.id, this.selectedItem.id).subscribe((res) => {
+            this.userApi.updateByIdConcernedWishlists(+ user.id, this.selectedItem.id).subscribe((res) => {
                 //console.log(res);
             }, error => {
                 console.log(error);
                 this.error_message = "An error occurred while sharing with users. Please refresh your page and try again.";
                 this.success_message = null;
                 return;
-            });            
+            });
         });
 
         this.selectedItem.participants = Object.assign([], this.userShared);
@@ -263,7 +308,7 @@ export class HomeComponent implements OnInit {
         this.error_message = null;
 
         setTimeout(() => {
-            
+
             this.getAll();
             this.closeAll();
             this.success_message = null;
@@ -321,19 +366,26 @@ export class HomeComponent implements OnInit {
                 this.isEmpty = true;
             }
 
+            setTimeout(() => {
+
+                this.getAll();
+                this.closeAll();
+
+            }, 3000);
+
         }, error => {
             console.log(error);
         });
 
         if (tempWishlist.prizePool.length > 0) {
 
-            this.donationApi.find( { prizePool: tempWishlist.prizePool[0].id } ).subscribe((item) => {
+            this.donationApi.find({ prizePool: tempWishlist.prizePool[0].id }).subscribe((item) => {
                 console.log(item);
 
                 item.forEach(donation => {
-                    this.donationApi.delete( + donation['id']).subscribe((item2) => {
+                    this.donationApi.delete(+ donation['id']).subscribe((item2) => {
                         console.log(item2);
-        
+
                     }, error => {
                         console.log(error);
                     });
@@ -400,7 +452,7 @@ export class HomeComponent implements OnInit {
             imageFile = this.uploadedFiles[0];
 
             this.itemApi.saveImageFile(imageFile).subscribe((res) => {
-                
+
                 setTimeout(() => {
 
                     let product = {
@@ -447,7 +499,7 @@ export class HomeComponent implements OnInit {
         });
 
         let product = new Item();
-        
+
         product.name = productName;
         product.description = productDescription;
         product.amount = productAmount;
@@ -462,15 +514,15 @@ export class HomeComponent implements OnInit {
                 this.success_message = "The wishlist has been successfully created !";
 
                 setTimeout(() => {
-                    
+
                     this.form.controls.productName.setValue("");
                     this.form.controls.productDescription.setValue("");
                     this.form.controls.productAmount.setValue("");
                     this.form.controls.productLink.setValue("");
-    
+
                     this.closeAll();
                     this.getAll();
-    
+
                     this.success_message = null;
                 }, 2000);
 
@@ -487,23 +539,23 @@ export class HomeComponent implements OnInit {
         }
         else {
             this.itemApi.create(product).subscribe((prod) => {
-                
+
                 this.error_message = null;
                 this.success_message = "The wishlist has been successfully updated !";
-    
+
                 setTimeout(() => {
-    
+
                     this.form.controls.productName.setValue("");
                     this.form.controls.productDescription.setValue("");
                     this.form.controls.productAmount.setValue("");
                     this.form.controls.productLink.setValue("");
-    
+
                     this.closeAll();
                     this.getAll();
-    
+
                     this.success_message = null;
                 }, 2000);
-    
+
             }, error => {
                 console.log(error);
                 this.error_message = "An error has occurred with the product. Please check your information and try again.";
@@ -626,6 +678,7 @@ export class HomeComponent implements OnInit {
         this.isEditProduct = false;
         this.isShared = false;
         this.isApplicationShared = false;
+        this.deleteConfirmation = false;
     }
 
     getFormatedDate(timestamp) {

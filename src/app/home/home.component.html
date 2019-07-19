@@ -1,5 +1,5 @@
 <div class="wrapper fadeInDown">
-    <div id="formContent" [ngClass]="{'smallForm': (showInfo || isNewProduct || isEditProduct || isShared)}">
+    <div id="formContent" [ngClass]="{'smallForm': (showInfo || isNewProduct || isEditProduct || isShared || deleteConfirmation)}">
 
         <div style="margin: 20px; font-weight: 600; text-transform: uppercase;">
             <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;">Wishlist</h5>
@@ -21,7 +21,7 @@
             <hr> No wishlist was found.
         </div>
 
-        <table class="table table-hover" *ngIf="!showInfo && !isEmpty && !isNewProduct && !isEditProduct && !isShared">
+        <table class="table table-hover" *ngIf="!showInfo && !isEmpty && !isNewProduct && !isEditProduct && !isShared && !deleteConfirmation">
             <thead>
                 <tr>
                     <th scope="col">Name</th>
@@ -47,7 +47,7 @@
                             (click)="editWishlist = true; showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa>Edit
                         </button>
-                        <button type="button" class="btn btn-danger" style="margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id" (click)="removeWishlist(item)">
+                        <button type="button" class="btn btn-danger" style="margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id" (click)="deleteConfirmation = true; selectedItem = item;">
                             <fa class="mr-2" name="remove" style="margin-right: 5px;"></fa>Remove
                         </button>
                     </td>
@@ -241,6 +241,20 @@
                 </div>
 
             </form>
+        </div>
+
+        <!-- Delete confirmation message -->
+        <div *ngIf="deleteConfirmation" style="margin-bottom: 20px;">
+            <h4 class="customTitle" style="margin-bottom: 20px; text-align: center;">
+                Are you sure you want to delete the '{{selectedItem.name}}' wishlist ?
+            </h4>
+
+            <button type="button" class="btn btn-success" style="margin-right: 20px;" (click)="deleteConfirmation = false;">
+                <fa class="mr-2" name="times"></fa>Cancel
+            </button>
+            <button type="button" class="btn btn-danger" (click)="removeWishlist(selectedItem);">
+                <fa class="mr-2" name="check"></fa>Confirm
+            </button>
         </div>
 
     </div>

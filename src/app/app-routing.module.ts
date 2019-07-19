@@ -6,6 +6,7 @@ import { CreateComponent } from './create/create.component';
 import { ProfileComponent } from './profile/profile.component';
 import { DonationComponent } from './donation/donation.component';
 import { ContributionComponent } from './contribution/contribution.component';
+import { InvitationComponent } from './invitation/invitation.component';
 import { HomeComponent } from './home/home.component';
 
 const routes: Routes = [
@@ -15,6 +16,7 @@ const routes: Routes = [
   {path: 'profile' , component: ProfileComponent},
   {path: 'donation' , component: DonationComponent},
   {path: 'contribution' , component: ContributionComponent},
+  {path: 'invitation/:id' , component: InvitationComponent},
   {path: '' , component: HomeComponent}
 ];
 

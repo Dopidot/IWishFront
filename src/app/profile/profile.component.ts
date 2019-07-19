@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User, UserApi, LoginResponse, AuthenticationApi } from '../../shared/sdk';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-profile',
@@ -14,24 +15,32 @@ export class ProfileComponent implements OnInit {
     error_message;
     success_message;
 
-    constructor(private authApi: AuthenticationApi, private userApi: UserApi, private formBuilder: FormBuilder) { }
+    constructor(
+        private authApi: AuthenticationApi, 
+        private userApi: UserApi, 
+        private formBuilder: FormBuilder,
+        private router: Router
+    ) { }
 
     ngOnInit() {
 
         this.createForm();
 
-        if (this.authApi.isAuthenticated()) { // true
-            this.authApi.getCurrentUser().subscribe((user: User) => {
-
-                this.currentUser = user;
-
-                this.profileForm.controls.email.setValue(user.email);
-                this.profileForm.controls.firstName.setValue(user.firstName);
-                this.profileForm.controls.lastName.setValue(user.lastName);
-
-                console.log("current user = ", user); // affichage de toutes les infos de l'user
-            })
+        if (!this.authApi.isAuthenticated())
+        {
+            this.router.navigate(['/login']);
+            return;
         }
+
+        this.authApi.getCurrentUser().subscribe((user: User) => {
+
+            this.currentUser = user;
+
+            this.profileForm.controls.email.setValue(user.email);
+            this.profileForm.controls.firstName.setValue(user.firstName);
+            this.profileForm.controls.lastName.setValue(user.lastName);
+        });
+
     }
 
     private createForm() {
