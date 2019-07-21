@@ -38,6 +38,7 @@ export class InvitationComponent implements OnInit {
         if (!this.authApi.isAuthenticated())
         {
             this.router.navigate(['/login']);
+            //window.location.replace("http://localhost:4200/login");
             return;
         }
 

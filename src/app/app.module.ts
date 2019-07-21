@@ -18,6 +18,8 @@ import { HomeComponent } from './home/home.component';
 import { SocialLoginModule, AuthServiceConfig, FacebookLoginProvider } from "angularx-social-login";
 import { InvitationComponent } from './invitation/invitation.component';
 
+import { NgxSocialButtonModule, SocialServiceConfig } from "ngx-social-button";
+
 let config = new AuthServiceConfig([
     {
         id: FacebookLoginProvider.PROVIDER_ID,
@@ -26,6 +28,13 @@ let config = new AuthServiceConfig([
 ]);
 
 export function provideConfig() {
+    return config;
+}
+
+// Configs
+export function getAuthServiceConfigs() {
+    let config = new SocialServiceConfig()
+        .addFacebook("333677914209094");
     return config;
 }
 
@@ -48,12 +57,17 @@ export function provideConfig() {
         SDKBrowserModule.forRoot(),
         FormsModule,
         ReactiveFormsModule,
-        SocialLoginModule
+        SocialLoginModule,
+        NgxSocialButtonModule
     ],
     providers: [
         {
             provide: AuthServiceConfig,
             useFactory: provideConfig
+        },
+        {
+            provide: SocialServiceConfig,
+            useFactory: getAuthServiceConfigs
         }
     ],
     bootstrap: [AppComponent]

@@ -127,14 +127,9 @@ export class ContributionComponent implements OnInit {
         formatted_string += date_not_formatted.getHours() + ":";
 
         if (date_not_formatted.getMinutes() < 10) {
-            formatted_string += "0" + date_not_formatted.getMinutes();
+            formatted_string += "0";
         }
-        else
-        {
-            formatted_string += date_not_formatted.getMinutes();
-        }
-        
-        
+        formatted_string += date_not_formatted.getMinutes();
 
         return formatted_string;
     }

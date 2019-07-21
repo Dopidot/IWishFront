@@ -78,8 +78,8 @@ export class AuthenticationApi {
     public isAuthenticated(): boolean {
         return this.getToken() != null
             && this.getToken() != '' 
-            && this.getToken() != 'null'
-            && !this.isTokenExpired();
+            && this.getToken() != 'null';
+            //&& !this.isTokenExpired();
     }
 
     public getCurrentUser(): Observable<User> {

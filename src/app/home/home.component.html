@@ -177,7 +177,7 @@
                     <input *ngIf="!isApplicationShared" type="button" class="fadeIn fourth" value="Share with users" (click)="isApplicationShared = true;">
 
                     <button *ngIf="!isApplicationShared" class="btn btn-lg btn-facebook text-uppercase" type="button" style="font-size: 15px; width: 266px; margin-bottom: 30px;"
-                        (click)="null">
+                        (click)="facebookSharing(selectedItem.id);">
 
                         <fa class="mr-2" name="facebook" style="margin-right: 5px;"></fa> Share with Facebook
                     </button>
