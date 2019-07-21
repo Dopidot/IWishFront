@@ -98,9 +98,9 @@
                 <div *ngIf="showProduct">
 
                     <div *ngFor="let item of selectedItem.items; let index = index;" class="list-product">
-                        <div class="row">
+                        <div class="row" style="min-height: 70px;">
                             <div class="col">
-                                <div class="product-name">
+                                <div class="product-name" title="{{item.name}}">
                                     {{item.name}}
                                 </div>
                                 <div class="product-description" title="{{item.description}}">
@@ -108,7 +108,7 @@
                                 </div>
                                 <div>Price : {{item.amount | number : '1.2-2'}} €</div>
                             </div>
-                            <div class="col" style="text-align: center; position: relative;">
+                            <div class="col" style="text-align: center; position: relative;" *ngIf="item.image">
                                 <a target="_blank" rel="noopener noreferrer" href="{{item.link}}">
                                     <img class="img-product" src="{{item.image}}" alt="{{item.name}}" />
                                 </a>
@@ -125,7 +125,7 @@
                                 </button>
                             </div>
                             <div style="width: 25%; display: inline-block; margin-left: 5px;">
-                                <button class="btn btn-lg btn-block" type="submit" (click)="removeProduct(index);" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
+                                <button class="btn btn-lg btn-block" type="button" (click)="removeProduct(index);" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
                                     <fa class="mr-2" name="times" style="margin-right: 5px;"></fa> Remove
                                 </button>
                             </div>
@@ -157,7 +157,7 @@
                     <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Link on Amazon website (optional)">
 
                     <div style="position: relative;" *ngIf="isNewProduct">
-                        <input type="file" class="customTitle" style="background-color: #f6f6f6;" id="inputGroupFile" aria-describedby="inputGroupFileAddon01"
+                        <input type="file" class="customCheckbox" style="background-color: #f6f6f6;" id="inputGroupFile" aria-describedby="inputGroupFileAddon01"
                             (change)="fileChange($event)">
                         <label class="btn-upload" for="inputGroupFile">
                             <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Browse

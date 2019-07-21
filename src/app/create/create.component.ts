@@ -20,6 +20,7 @@ export class CreateComponent implements OnInit {
     today = this.getFormatedDate(new Date());
     uploadedFiles: Array<File>;
     isLoading = false;
+    isNewProduct = false
 
     constructor(
         private wishlistApi: WishlistApi,
@@ -77,33 +78,48 @@ export class CreateComponent implements OnInit {
             owner: parseInt(localStorage.getItem("id"), 10)
         };
 
+        let isEmptyPrizePool = true;
+
+        const endDate = this.form.controls.endDate.value;
+        const emailDelagated = this.form.controls.delegateTo.value;
+        let managerId = -1;
+
+        if (endDate && emailDelagated) 
+        {
+            isEmptyPrizePool = false;
+        }
+        else if ( (!endDate && emailDelagated) || (endDate && !emailDelagated) ) 
+        {
+            this.error_message = "You must fill the fields 'End date' and the email address.";
+            this.success_message = null;
+            return;
+        }
+
+        if(!isEmptyPrizePool) {
+            let index = 0;
+
+            this.users.forEach(element => {
+                if (element.email == emailDelagated) {
+                    managerId = element.id;
+                }
+                index++;
+            });
+
+            if (managerId == -1) {
+                this.error_message = "Invalid email address, you must use the email address of a registered user.";
+                this.success_message = null;
+                return;
+            }
+        }
+
         this.wishlistApi.create(wishlist).subscribe((item) => {
             console.log(item);
 
-            if (this.showPrizePool) {
-                var date = new Date(this.form.controls.endDate.value);
-                const emailDelagated = this.form.controls.delegateTo.value;
-
-                let managerId = -1;
-                let index = 0;
-
-                this.users.forEach(element => {
-                    if (element.email == emailDelagated) {
-                        managerId = element.id;
-                    }
-                    index++;
-                });
-
-                if (managerId == -1) {
-                    this.error_message = "Invalid email address, you must use the email address of a registered user.";
-                    this.success_message = null;
-                    return;
-                }
+            if (!isEmptyPrizePool) {
 
                 let prizePool = {
-                    // managerId : 1,
-                    endDate: date.getTime(),
                     wishlist: item['id'],
+                    endDate: new Date(this.form.controls.endDate.value).getTime(),
                     manager: managerId
                 };
 
@@ -112,6 +128,13 @@ export class CreateComponent implements OnInit {
                     this.error_message = null;
                     this.success_message = "The wishlist has been successfully created !";
                     this.resetForm();
+
+                    if (this.products.length == 0) {
+                        setTimeout(() => {
+                            this.router.navigate(['']);
+                        }, 3000);
+                    }
+
                 }, error => {
                     console.log(error);
                     this.error_message = "An error has occurred with the prize pool. Please check your information and try again.";
@@ -122,14 +145,20 @@ export class CreateComponent implements OnInit {
                 this.error_message = null;
                 this.success_message = "The wishlist has been successfully created !";
                 this.resetForm();
+
+                if (this.products.length == 0) {
+                    setTimeout(() => {
+                        this.router.navigate(['']);
+                    }, 3000);
+                }
             }
 
-
             if (this.products.length > 0) {
-
                 let position = 1;
+                let tempProducts = Object.assign([], this.products);
+                this.products = [];
 
-                this.products.forEach(element => {
+                tempProducts.forEach(element => {
 
                     let product = new Item();
 
@@ -177,6 +206,12 @@ export class CreateComponent implements OnInit {
 
                     position++;
 
+                    if (tempProducts.length == position - 1) {
+                        setTimeout(() => {
+                            this.router.navigate(['']);
+                        }, 3000);
+                    }
+
                 });
             }
 
@@ -188,18 +223,41 @@ export class CreateComponent implements OnInit {
     }
 
     addProduct() {
+
+        this.resetMessages();
+        
         const productName = this.form.controls.productName.value;
         const productDescription = this.form.controls.productDescription.value;
         const productAmount = this.form.controls.productAmount.value;
         const productLink = this.form.controls.productLink.value;
         let imageFile = null;
 
-        if (this.uploadedFiles != null) {
+        if(!productName || !productAmount) {
+            this.error_message = "You cannot add a new product without a name and an amount.";
+            this.success_message = null;
+            return;
+        }
+
+        let product = {
+            name: productName,
+            amount: productAmount
+        };
+
+        if(productDescription) {
+            product['description'] = productDescription;
+        }
+
+        if(productLink) {
+            product['link'] = productLink;            
+        }
+
+        if (this.uploadedFiles != null && this.uploadedFiles.length >= 1) {
             imageFile = this.uploadedFiles[0];
 
             this.itemApi.saveImageFile(imageFile).subscribe((res) => {
-
+                console.log('Save image file');
                 this.isLoading = true;
+                this.isNewProduct = false;
 
                 setTimeout(() => {
 
@@ -220,6 +278,7 @@ export class CreateComponent implements OnInit {
                     this.form.controls.productLink.setValue("");
 
                     this.isLoading = false;
+                    this.uploadedFiles = null;
 
                 }, 5000);
 
@@ -230,6 +289,17 @@ export class CreateComponent implements OnInit {
                 this.isLoading = false;
                 return;
             });
+        }
+        else
+        {
+            this.products.push(product);
+            
+            this.form.controls.productName.setValue("");
+            this.form.controls.productDescription.setValue("");
+            this.form.controls.productAmount.setValue("");
+            this.form.controls.productLink.setValue("");
+
+            this.isNewProduct = false;
         }
 
 
@@ -251,8 +321,7 @@ export class CreateComponent implements OnInit {
         this.form.controls.productAmount.setValue("");
         this.form.controls.productLink.setValue("");
 
-        this.products = [];
-        this.uploadedFiles = [];
+        this.uploadedFiles = null;
 
         this.showProduct = false;
         this.showPrizePool = false;
@@ -282,6 +351,11 @@ export class CreateComponent implements OnInit {
         this.uploadedFiles = element.target.files;
     }
 
+    resetMessages() {
+        this.error_message = null;
+        this.success_message = null;
+    }
+
     getFormatedDate(timestamp) {
         var date_not_formatted = new Date(timestamp);
 
@@ -290,8 +364,7 @@ export class CreateComponent implements OnInit {
         if (date_not_formatted.getMonth() < 9) {
             formatted_string += "0";
         }
-        formatted_string += (date_not_formatted.getMonth() + 1);
-        formatted_string += "-";
+        formatted_string += (date_not_formatted.getMonth() + 1) + "-";
 
         if (date_not_formatted.getDate() < 10) {
             formatted_string += "0";

@@ -3,6 +3,14 @@ import { Wishlist, WishlistApi, User, UserApi, PrizePool, PrizePoolApi, Item, It
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 
+/*import { HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+
+ const httpOptions = {
+ headers: new HttpHeaders({
+      "Access-Control-Allow-Origin" : "*"
+ })};*/
+
 @Component({
     selector: 'app-home',
     templateUrl: './home.component.html',
@@ -33,6 +41,7 @@ export class HomeComponent implements OnInit {
     availableUser = [];
 
     constructor(
+        //private http: HttpClient,
         private wishlistApi: WishlistApi,
         private userApi: UserApi,
         private prizePoolApi: PrizePoolApi,
@@ -44,6 +53,23 @@ export class HomeComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        
+        /*this.http.get('https://www.amazon.fr/Rowenta-Ventilateur-Silencieux-Oscillation-Ventilation/dp/B01891LYZQ?ref_=Oct_BSellerC_3580231031_1&pf_rd_p=cd249766-bd86-5fe1-858e-0079e90d0fde&pf_rd_s=merchandised-search-6&pf_rd_t=101&pf_rd_i=3580231031&pf_rd_m=A1X6FK5RDHNB96&pf_rd_r=EE1E8YJWA3F2C1TJDTS5&pf_rd_r=EE1E8YJWA3F2C1TJDTS5&pf_rd_p=cd249766-bd86-5fe1-858e-0079e90d0fde', httpOptions ).subscribe((res) => {
+            console.log(res);
+        });*/
+
+        /*let res = fetch('https://www.amazon.fr/Rowenta-Ventilateur-Silencieux-Oscillation-Ventilation/dp/B01891LYZQ?ref_=Oct_BSellerC_3580231031_1&pf_rd_p=cd249766-bd86-5fe1-858e-0079e90d0fde&pf_rd_s=merchandised-search-6&pf_rd_t=101&pf_rd_i=3580231031&pf_rd_m=A1X6FK5RDHNB96&pf_rd_r=EE1E8YJWA3F2C1TJDTS5&pf_rd_r=EE1E8YJWA3F2C1TJDTS5&pf_rd_p=cd249766-bd86-5fe1-858e-0079e90d0fde', {
+            method: 'get',
+            headers: {
+                'content-type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET'
+            }
+        });
+
+        if(res)
+            console.log(res);*/
+        
 
         if (!this.authApi.isAuthenticated())
         {
@@ -51,7 +77,7 @@ export class HomeComponent implements OnInit {
             return;
         }
 
-        if (localStorage.getItem("id") == null) 
+        if (localStorage.getItem("id") != null) 
         {
             this.currentUserId = parseInt(localStorage.getItem("id"), 10);
         }
@@ -366,10 +392,15 @@ export class HomeComponent implements OnInit {
                 this.isEmpty = true;
             }
 
+            this.success_message = "You have deleted the wishlist successfully.";
+            this.error_message = null;
+
             setTimeout(() => {
 
                 this.getAll();
                 this.closeAll();
+
+                this.success_message = null;
 
             }, 3000);
 

@@ -34,7 +34,7 @@
 
                 <hr>
 
-                <div class="customTitle" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool;">
+                <div class="customTitle" style="cursor: pointer;" (click)="showPrizePool = !showPrizePool; resetMessages();">
                     <div style="display: inline-block; width: 94%;">Prize Pool</div>
                     <fa *ngIf="!showPrizePool" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
                     <fa *ngIf="showPrizePool" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
@@ -48,7 +48,7 @@
 
                 </div>
 
-                <div class="customTitle" style="cursor: pointer;" (click)="showProduct = !showProduct;">
+                <div class="customTitle" style="cursor: pointer;" (click)="showProduct = !showProduct; resetMessages();">
                     <div style="display: inline-block; width: 94%;">Products</div>
                     <fa *ngIf="!showProduct" class="mr-2" name="caret-down" style="margin-left: 5px;"></fa>
                     <fa *ngIf="showProduct" class="mr-2" name="caret-right" style="margin-left: 7px;"></fa>
@@ -56,11 +56,12 @@
 
                 <div *ngIf="showProduct">
 
-                    <div *ngFor="let item of products" class="list-product">
+                    <div *ngFor="let item of products; let i = index;" class="list-product">
 
-                        <div class="row">
+                        <div class="row" style="min-height: 70px;">
                             <div class="col">
-                                <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"
+                                    title="{{item.name}}">
                                     {{item.name}}
                                 </div>
                                 <div style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; font-size: 12px;"
@@ -69,14 +70,16 @@
                                 </div>
                                 <div>Price : {{item.amount | number : '1.2-2'}} €</div>
                             </div>
-                            <div class="col" style="text-align: center; position: relative;">
-                                <img class="img-product" src="{{item.imagePath}}" alt="{{item.name}}" />
+                            <div class="col" style="text-align: center; position: relative;" *ngIf="item.imagePath">
+                                <a target="_blank" rel="noopener noreferrer" href="{{item.link}}">
+                                    <img class="img-product" src="{{item.imagePath}}" alt="{{item.name}}" />
+                                </a>
                             </div>
 
                         </div>
 
                         <div style="width: 25%; margin: auto;">
-                            <button class="btn btn-lg btn-block" type="submit" (click)="removeProduct($index);" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
+                            <button class="btn btn-lg btn-block" type="button" (click)="removeProduct(i);" style="font-size: 12px; border: 1px solid #333; padding: 2px;">
                                 <fa class="mr-2" name="times" style="margin-right: 5px;"></fa> Remove
                             </button>
                         </div>
@@ -88,7 +91,7 @@
 
                     <div class="row" style="padding-bottom: 25px; padding-top: 10px;">
                         <div class="col-10 offset-1">
-                            <button class="btn btn-lg btn-block" type="submit" (click)="isNewProduct = true;" style="font-size: 15px; border: 1px solid #333;" [disabled]="isLoading">
+                            <button class="btn btn-lg btn-block" type="submit" (click)="isNewProduct = true; resetMessages();" style="font-size: 15px; border: 1px solid #333;" [disabled]="isLoading">
                                 <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Add new product
                             </button>
                         </div>
@@ -121,7 +124,7 @@
                     </label>
                 </div>
                 
-                <input type="button" class="fadeIn fourth" value="Add" (click)="isNewProduct = false; addProduct();">
+                <input type="button" class="fadeIn fourth" value="Add" (click)="addProduct();">
             </div>
 
         </form>

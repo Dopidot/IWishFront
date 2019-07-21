@@ -3,6 +3,7 @@ import { BaseSailsApi } from '../core/base.service';
 import { HttpClient } from '@angular/common/http';
 import { Item, PrizePool, Wishlist } from '../../models/index';
 import { Observable } from 'rxjs';
+import { SailsConfig } from '../../sails.config';
 
 @Injectable()
 export class WishlistApi extends BaseSailsApi {
