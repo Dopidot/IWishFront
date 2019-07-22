@@ -37,17 +37,24 @@
                     <td *ngIf="!item.isPublic">No</td>
                     <td>{{item.owner.firstName}}</td>
                     <td style="text-align: left;">
-                        <button type="button" class="btn btn-primary" style="margin-right: 5px; margin-bottom: 5px;" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm();">
+                        <button type="button" class="btn btn-primary" style="margin-right: 5px; margin-bottom: 5px;" (click)="editWishlist = false; showInfo = true; selectedItem = item; loadForm(); resetMessages();">
                             <fa class="mr-2" name="eye" style="margin-right: 5px;"></fa>Show
                         </button>
-                        <button type="button" class="btn btn-info" style="margin-right: 5px; margin-bottom: 5px;" (click)="isShared = true; selectedItem = item; userFilter(true);">
-                            <fa class="mr-2" name="share-alt" style="margin-right: 5px;"></fa>Share
+                        <button type="button" class="btn btn-info" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="!isCloseWishlist(item);" (click)="isShared = true; selectedItem = item; userFilter(true); resetMessages();">
+                            <fa class="mr-2" name="share-alt" style="margin-right: 5px;"></fa>
+                            Share
                         </button>
-                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id"
-                            (click)="editWishlist = true; showInfo = true; selectedItem = item; loadForm();">
+                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id && !isCloseWishlist(item);"
+                            (click)="editWishlist = true; showInfo = true; selectedItem = item; loadForm(); resetMessages();">
                             <fa class="mr-2" name="edit" style="margin-right: 5px;"></fa>Edit
                         </button>
-                        <button type="button" class="btn btn-danger" style="margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id" (click)="deleteConfirmation = true; selectedItem = item;">
+                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id && isCloseWishlist(item);"
+                            (click)="collectDonation(item); resetMessages();">
+                            <fa *ngIf="!isLoading" name="check-circle" style="margin-right: 5px;"></fa>
+                            <fa *ngIf="isLoading" name="spinner" animation="spin" style="margin-right: 5px;"></fa>
+                            Collect
+                        </button>
+                        <button type="button" class="btn btn-danger" style="margin-bottom: 5px;" *ngIf="currentUserId == item.owner.id" (click)="deleteConfirmation = true; selectedItem = item; resetMessages();">
                             <fa class="mr-2" name="remove" style="margin-right: 5px;"></fa>Remove
                         </button>
                     </td>
@@ -100,7 +107,8 @@
                     <div *ngFor="let item of selectedItem.items; let index = index;" class="list-product">
                         <div class="row" style="min-height: 70px;">
                             <div class="col">
-                                <div class="product-name" title="{{item.name}}">
+                                <div class="product-name" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" 
+                                    title="{{item.name}}">
                                     {{item.name}}
                                 </div>
                                 <div class="product-description" title="{{item.description}}">

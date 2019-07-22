@@ -9,13 +9,22 @@ import { FileResponse } from '../../models/FileResponse';
 @Injectable()
 export class ItemApi extends BaseSailsApi {
 
-    private createImageFileUrl: string;
+    private createImageFileUrl: string = SailsConfig.getPath() + '/save-image';
+    private findItemDataFromAmazonUrl: string = SailsConfig.getPath() + '/find-item-data-from-amazon-url';
+    private createItemFromAmazonUrl: string = SailsConfig.getPath() + '/create-item-from-amazon-url';
 
     constructor(
         @Inject(HttpClient) protected http: HttpClient,
     ) {
         super(http, 'items');
-        this.createImageFileUrl = SailsConfig.getPath() + '/save-image';
+    }
+
+    public getDataFromAmazonUrl(url: string): Observable<Item> {
+        return this.http.post<Item>(this.findItemDataFromAmazonUrl, {url: url});
+    }
+
+    public createFromAmazonUrl(url: string, wishlistId: number): Observable<Item> {
+        return this.http.post<Item>(this.createItemFromAmazonUrl, {url: url, wishlistId: wishlistId});
     }
 
     public saveImageFile(imageFile: File): Observable<FileResponse> {

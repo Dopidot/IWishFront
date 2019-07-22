@@ -21,6 +21,8 @@ export class CreateComponent implements OnInit {
     uploadedFiles: Array<File>;
     isLoading = false;
     isNewProduct = false
+    imageFromAmazon;
+    isFromAmazon = false;
 
     constructor(
         private wishlistApi: WishlistApi,
@@ -55,7 +57,8 @@ export class CreateComponent implements OnInit {
             productDescription: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productAmount: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
             productLink: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
-            productCurrency: ['€', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
+            productCurrency: ['€', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]],
+            amazonURL: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(30)]]
         });
     }
 
@@ -169,6 +172,10 @@ export class CreateComponent implements OnInit {
                     product.position = position;
                     product.wishlist = item['id'];
 
+                    if(element.imagePath) {
+                        product.image = element.imagePath;
+                    }
+
                     if (element.file != null) {
                         this.itemApi.createWithImageFile(product, element.file).subscribe((item: any) => {
                             console.log("item stored with image = ", item);
@@ -222,6 +229,41 @@ export class CreateComponent implements OnInit {
         });
     }
 
+    addProductFromLink() {
+
+        const url = this.form.controls.amazonURL.value;
+
+        this.error_message = null;
+        this.success_message = null;
+
+        console.log('Here');
+
+        if (!url.startsWith("https://www.amazon")) {
+            this.error_message = "Invalid URL, you must use an Amazon link.";
+            this.success_message = null;
+            return;
+        }
+
+        this.itemApi.getDataFromAmazonUrl(url).subscribe((res) => {
+            console.log(res);
+
+            this.form.controls.productName.setValue(res.name);
+            this.form.controls.productAmount.setValue(res.amount);
+            this.form.controls.productLink.setValue(url);
+
+            this.imageFromAmazon = res.image;
+            this.isNewProduct = true;
+            this.isFromAmazon = false;
+            this.form.controls.amazonURL.setValue("");
+
+        }, error => {
+            console.log(error);
+            this.error_message = "An error has occurred with the product. Please check your information and try again.";
+            this.success_message = null;
+            return;
+        });
+    }
+
     addProduct() {
 
         this.resetMessages();
@@ -249,6 +291,10 @@ export class CreateComponent implements OnInit {
 
         if(productLink) {
             product['link'] = productLink;            
+        }
+
+        if(this.imageFromAmazon) {
+            product['imagePath'] = this.imageFromAmazon;
         }
 
         if (this.uploadedFiles != null && this.uploadedFiles.length >= 1) {
@@ -300,6 +346,7 @@ export class CreateComponent implements OnInit {
             this.form.controls.productLink.setValue("");
 
             this.isNewProduct = false;
+            this.imageFromAmazon = null;
         }
 
 

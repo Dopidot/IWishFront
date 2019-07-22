@@ -25,14 +25,15 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of items?.reverse()">
+                <tr *ngFor="let item of items">
                     <th scope="row">{{item.name}}</th>
                     <td>{{item.owner.firstName}}</td>
                     <td style="text-align: left;">
                         <button type="button" class="btn btn-primary" style="margin-right: 5px; margin-bottom: 5px;" (click)="showInfo = true; selectedItem = item; loadForm();">
                             <fa class="mr-2" name="eye" style="margin-right: 5px;"></fa>Show
                         </button>
-                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" (click)="isDonation = true; selectedItem = item;">
+                        <button type="button" class="btn btn-success" style="margin-right: 5px; margin-bottom: 5px;" *ngIf="checkPrizePool(item);" 
+                            (click)="isDonation = true; selectedItem = item;">
                             <fa class="mr-2" name="heart" style="margin-right: 5px;"></fa>Donate
                         </button>
                     </td>

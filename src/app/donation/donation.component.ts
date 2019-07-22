@@ -21,6 +21,7 @@ export class DonationComponent implements OnInit {
     selectedItem;
     isDonation = false;
     isInProgress = false;
+    currentUserId = -1;
 
     constructor(
         private wishlistApi: WishlistApi,
@@ -38,6 +39,11 @@ export class DonationComponent implements OnInit {
         {
             this.router.navigate(['/login']);
             return;
+        }
+
+        if (localStorage.getItem("id") != null) 
+        {
+            this.currentUserId = parseInt(localStorage.getItem("id"), 10);
         }
 
         this.createForm();
@@ -61,48 +67,95 @@ export class DonationComponent implements OnInit {
     }
 
     getAllWishlist() {
-        this.wishlistApi.findAll().subscribe((item) => {
 
+        if (this.currentUserId == -1) {
+            this.error_message = "An error has occurred. Please try to reconnect to your account.";
+            this.success_message = null;
+
+            return;
+        }
+
+        this.wishlistApi.find({ owner: + this.currentUserId }).subscribe((item) => {
+            console.log(item);
             this.items = item;
             this.isEmpty = false;
 
-            if (item.length == 0) {
-                this.isEmpty = true;
-                return;
-            }
+            this.userApi.findByIdConcernedWishlists(this.currentUserId).subscribe((wish) => {
+                wish.forEach(currentWish => {
 
-            this.userApi.findAll().subscribe((users) => {
-
-                let tempsItems = this.items;
-                let index = 0;
-
-                this.items.forEach(element => {
-
-                    if (element.prizePool.length > 0) {
-                        users.forEach(user => {
-                            if (element.prizePool[0].manager == user['id']) {
-                                tempsItems[index].prizePool[0]['managerName'] = user['firstName'];
-                                tempsItems[index].prizePool[0]['managerEmail'] = user['email'];
-                            }
-                        });
-                    }
-
-                    index++;
+                    this.wishlistApi.findById(+ currentWish['id']).subscribe((res) => {
+                        if (+ res['owner'].id != this.currentUserId) {
+                            this.items.push(res);
+                        }
+                    });
                 });
 
-                this.items = tempsItems;
+                this.userApi.findAll().subscribe((users) => {
 
-                this.checkDonationState();
+                    let tempsItems = this.items;
+                    let index = 0;
+
+                    this.items.forEach(element => {
+
+                        if (element.prizePool.length > 0) {
+
+                            const currentDate = new Date();
+                            const endDate = tempsItems[index].prizePool[0].endDate;
+
+                            if(!element.prizePool[0].closed && currentDate >= endDate) {
+
+                                let prizePool = {
+                                    endDate: endDate,
+                                    wishlist: element.id,
+                                    manager: element.prizePool[0].manager,
+                                    closed: true
+                                };
+
+                                this.prizePoolApi.update(element.prizePool[0].id, prizePool).subscribe((res) => {
+                                    console.log("The wishlist was closed !");
+                    
+                                }, error => {
+                                    console.log(error);
+                                    this.error_message = "An error has occurred with the prize pool. Please check information of " + element.name + "wishlist.";
+                                    this.success_message = null;
+                                });
+                            }
+
+                            users.forEach(user => {
+                                if (element.prizePool[0].manager == user['id']) {
+                                    tempsItems[index].prizePool[0]['managerName'] = user['firstName'];
+                                    tempsItems[index].prizePool[0]['managerEmail'] = user['email'];
+                                }
+                            });
+
+                        }
+
+                        index++;
+                    });
+
+                    this.items = tempsItems;
+                    this.checkDonationState();
+
+                    if (this.items.length == 0) {
+                        this.isEmpty = true;
+                        return;
+                    }
+
+                }, error => {
+                    console.log(error);
+                });
 
             }, error => {
                 console.log(error);
+                this.error_message = "An error has occurred with the wishlist. Please try to refresh your page.";
+                this.success_message = null;
+                return;
             });
 
         }, error => {
-            this.error_message = "An error has occurred when retrieving wishlist.";
-            this.success_message = null;
-            return;
+            console.log(error);
         });
+
     }
 
     loadForm() {
@@ -155,6 +208,20 @@ export class DonationComponent implements OnInit {
             this.isInProgress = true;
             this.form.controls.donationAmount.setValue(paypalInfo['donationAmount']);
         }
+    }
+
+    checkPrizePool(wishlist) {
+        if(!wishlist) {
+            return false;
+        }
+
+        if(wishlist.prizePool.length > 0) {
+            if(!wishlist.prizePool[0].closed) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

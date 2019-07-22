@@ -2,10 +2,10 @@
     <div id="formContent">
 
         <div class="fadeIn first" style="margin: 20px; font-weight: 600;">
-            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;" *ngIf="!isNewProduct">Create new wishlist</h5>
-            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;" *ngIf="isNewProduct">Create new product</h5>
+            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;" *ngIf="!isNewProduct && !isFromAmazon">Create new wishlist</h5>
+            <h5 style="font-family: 'Lucida Sans', 'Lucida Sans Regular', cursive;" *ngIf="isNewProduct || isFromAmazon">Create new product</h5>
 
-            <label (click)="isNewProduct = false;" *ngIf="isNewProduct" class="btn-close">
+            <label (click)="isNewProduct = false; isFromAmazon = false;" *ngIf="isNewProduct || isFromAmazon" class="btn-close">
                 Close
                 <fa class="mr-2" name="times" style="margin-left: 5px;"></fa>
             </label>
@@ -20,7 +20,7 @@
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-            <div *ngIf="!isNewProduct">
+            <div *ngIf="!isNewProduct && !isFromAmazon">
 
                 <input type="text" id="name" class="fadeIn second" formControlName="name" placeholder="Name">
 
@@ -92,7 +92,10 @@
                     <div class="row" style="padding-bottom: 25px; padding-top: 10px;">
                         <div class="col-10 offset-1">
                             <button class="btn btn-lg btn-block" type="submit" (click)="isNewProduct = true; resetMessages();" style="font-size: 15px; border: 1px solid #333;" [disabled]="isLoading">
-                                <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Add new product
+                                <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Add product manually
+                            </button>
+                            <button class="btn btn-lg btn-block" type="submit" (click)="isFromAmazon = true; resetMessages();" style="font-size: 15px; border: 1px solid #333;" [disabled]="isLoading">
+                                <fa class="mr-2" name="plus" style="margin-right: 5px;"></fa> Add product from Amazon
                             </button>
                         </div>
                     </div>
@@ -102,6 +105,13 @@
                 <input type="submit" class="fadeIn fourth" value="Create" [disabled]="isLoading">
 
             </div>
+
+            <!-- Add new product from Amazon -->
+            <div *ngIf="isFromAmazon">
+                    <input type="text" class="fadeIn second" id="amazonURL" name="amazonURL" formControlName="amazonURL" placeholder="Amazon URL">
+                    
+                    <input type="button" class="fadeIn fourth" value="Add" (click)="addProductFromLink();">
+                </div>
 
 
             <!-- Add new product -->
@@ -116,7 +126,7 @@
                 
                 <input type="text" class="fadeIn second" id="productLink" name="productLink" formControlName="productLink" placeholder="Link on Amazon website (optional)">
 
-                <div style="position: relative;">
+                <div style="position: relative;" *ngIf="!imageFromAmazon">
 
                     <input type="file" class="customCheckbox" style="background-color: #f6f6f6;" id="inputGroupFile" aria-describedby="inputGroupFileAddon01" (change)="fileChange($event)">
                     <label class="btn-upload" for="inputGroupFile">

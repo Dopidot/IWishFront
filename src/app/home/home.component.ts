@@ -33,6 +33,7 @@ export class HomeComponent implements OnInit {
     uploadedFiles: Array<File>;
     userShared = [];
     availableUser = [];
+    isLoading = false;
 
     constructor(
         private wishlistApi: WishlistApi,
@@ -40,22 +41,20 @@ export class HomeComponent implements OnInit {
         private prizePoolApi: PrizePoolApi,
         private itemApi: ItemApi,
         private donationApi: DonationApi,
-        private authApi : AuthenticationApi,
+        private authApi: AuthenticationApi,
         private formBuilder: FormBuilder,
         private router: Router,
         private socialAuthService: SocialService
     ) { }
 
-    ngOnInit() {        
+    ngOnInit() {
 
-        if (!this.authApi.isAuthenticated())
-        {
+        if (!this.authApi.isAuthenticated()) {
             this.router.navigate(['/login']);
             return;
         }
 
-        if (localStorage.getItem("id") != null) 
-        {
+        if (localStorage.getItem("id") != null) {
             this.currentUserId = parseInt(localStorage.getItem("id"), 10);
         }
 
@@ -80,10 +79,10 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    public facebookSharing(wishlistId){
+    public facebookSharing(wishlistId) {
         let shareObj = {
             href: "http://127.0.0.1:4200/invitation/" + wishlistId,
-            hashtag:"#wishlist"
+            hashtag: "#wishlist"
         };
 
         this.socialAuthService.facebookSharing(shareObj).then((test) => {
@@ -128,6 +127,28 @@ export class HomeComponent implements OnInit {
 
                         if (element.prizePool.length > 0) {
 
+                            const currentDate = new Date();
+                            const endDate = tempsItems[index].prizePool[0].endDate;
+
+                            if (!element.prizePool[0].closed && currentDate >= endDate) {
+
+                                let prizePool = {
+                                    endDate: endDate,
+                                    wishlist: element.id,
+                                    manager: element.prizePool[0].manager,
+                                    closed: true
+                                };
+
+                                this.prizePoolApi.update(element.prizePool[0].id, prizePool).subscribe((res) => {
+                                    console.log("The wishlist was closed !");
+
+                                }, error => {
+                                    console.log(error);
+                                    this.error_message = "An error has occurred with the prize pool. Please check information of " + element.name + "wishlist.";
+                                    this.success_message = null;
+                                });
+                            }
+
                             this.users.forEach(user => {
                                 if (element.prizePool[0].manager == user.id) {
                                     tempsItems[index].prizePool[0]['managerName'] = user.firstName;
@@ -166,40 +187,39 @@ export class HomeComponent implements OnInit {
     checkInvitation() {
         let wishlistId = localStorage.getItem("invitation");
 
-        if (wishlistId)
-        {
+        if (wishlistId) {
             this.authApi.getCurrentUser().subscribe((user) => {
-                
+
                 // Remove participation if already exist
-                this.userApi.updateByIdDeleteConcernedWishlist( + user.id, + wishlistId).subscribe((res) => {
+                this.userApi.updateByIdDeleteConcernedWishlist(+ user.id, + wishlistId).subscribe((res) => {
                 }, error => {
                     console.log(error);
                     this.error_message = "An error has occurred. Please refresh your page and try again.";
                     localStorage.removeItem("invitation");
-    
+
                     return;
                 });
-    
+
                 // Save the participation
-                this.userApi.updateByIdConcernedWishlists( + user.id, + wishlistId).subscribe((res) => {
+                this.userApi.updateByIdConcernedWishlists(+ user.id, + wishlistId).subscribe((res) => {
                     this.success_message = "You have successfully joined the wishlist !";
-                    
+
                     setTimeout(() => {
-                        
+
                         localStorage.removeItem("invitation");
                         this.success_message = null;
                         location.reload();
-            
+
                     }, 2000);
                 }, error => {
                     console.log(error);
                     this.error_message = "An error has occurred. No wishlist found for the invitation.";
                     this.success_message = null;
                     localStorage.removeItem("invitation");
-    
+
                     return;
                 });
-                
+
             });
         }
     }
@@ -281,6 +301,41 @@ export class HomeComponent implements OnInit {
     removeUserShared(user, index) {
         this.userShared.splice(index, 1);
         this.availableUser.push(user);
+    }
+
+    isCloseWishlist(wishlist) {
+        if (!wishlist) {
+            return false;
+        }
+
+        if (wishlist.prizePool.length > 0) {
+            if (wishlist.prizePool[0].closed) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    collectDonation(wishlist) {
+
+        this.isLoading = true;
+        this.prizePoolApi.collectDonations(wishlist.prizePool[0].id).subscribe((res) => {
+
+            this.success_message = "You have successfully collected the prize pool with payment ID : " + res.data.payKey;
+            this.error_message = null;
+            this.isLoading = false;
+
+        }, error => {
+            console.log(error);
+            this.error_message = "An error has occurred with the prize pool.";
+            this.success_message = null;
+            this.isLoading = false;
+        });
+    }
+
+    resetMessages() {
+        this.error_message = null;
+        this.success_message = null;
     }
 
     saveUserShared() {
@@ -598,48 +653,97 @@ export class HomeComponent implements OnInit {
 
         this.wishlistApi.update(wishlistId, wishlist).subscribe((wish) => {
 
-            var date = new Date(this.form.controls.endDate.value);
+            let isEmptyPrizePool = true;
+
+            const endDate = this.form.controls.endDate.value;
             const emailDelagated = this.form.controls.delegateTo.value;
-
             let managerId = -1;
-            let index = 0;
 
-            this.users.forEach(element => {
-                if (element.email == emailDelagated) {
-                    managerId = element.id;
-                }
-                index++;
-            });
-
-            if (managerId == -1) {
-                this.error_message = "Invalid email address, you must use the email address of a registered user.";
+            if (endDate && emailDelagated) {
+                isEmptyPrizePool = false;
+            }
+            else if ((!endDate && emailDelagated) || (endDate && !emailDelagated)) {
+                this.error_message = "You must fill the fields 'End date' and the email address.";
                 this.success_message = null;
                 return;
             }
 
-            let prizePool = {
-                endDate: date.getTime(),
-                wishlist: wishlistId,
-                manager: managerId
-            };
+            if (!isEmptyPrizePool) {
 
-            this.prizePoolApi.update(this.selectedItem.prizePool[0].id, prizePool).subscribe((res) => {
+                let index = 0;
+
+                this.users.forEach(element => {
+                    if (element.email == emailDelagated) {
+                        managerId = element.id;
+                    }
+                    index++;
+                });
+
+                if (managerId == -1) {
+                    this.error_message = "Invalid email address, you must use the email address of a registered user.";
+                    this.success_message = null;
+                    return;
+                }
+
+                let prizePool = {
+                    endDate: new Date(this.form.controls.endDate.value).getTime(),
+                    wishlist: wishlistId,
+                    manager: managerId
+                };
+                console.log(this.selectedItem);
+
+                if(this.selectedItem.prizePool.length > 0) {
+                    this.prizePoolApi.update(this.selectedItem.prizePool[0].id, prizePool).subscribe((res) => {
+                        this.error_message = null;
+                        this.success_message = "The wishlist has been successfully updated !";
+    
+                        setTimeout(() => {
+    
+                            this.closeAll();
+                            this.getAll();
+    
+                            this.success_message = null;
+                        }, 2000);
+    
+                    }, error => {
+                        console.log(error);
+                        this.error_message = "An error has occurred with the prize pool. Please check your information and try again.";
+                        this.success_message = null;
+                    });
+                }
+                else {
+                    this.prizePoolApi.create(prizePool).subscribe((res) => {
+                        this.error_message = null;
+                        this.success_message = "The wishlist has been successfully updated !";
+    
+                        setTimeout(() => {
+    
+                            this.closeAll();
+                            this.getAll();
+    
+                            this.success_message = null;
+                        }, 2000);
+    
+                    }, error => {
+                        console.log(error);
+                        this.error_message = "An error has occurred with the prize pool. Please check your information and try again.";
+                        this.success_message = null;
+                    });
+                }
+                
+            }
+            else {
                 this.error_message = null;
-                this.success_message = "The wishlist has been successfully created !";
+                this.success_message = "The wishlist has been successfully updated !";
 
                 setTimeout(() => {
-
+                    
                     this.closeAll();
                     this.getAll();
 
                     this.success_message = null;
                 }, 2000);
-
-            }, error => {
-                console.log(error);
-                this.error_message = "An error has occurred with the prize pool. Please check your information and try again.";
-                this.success_message = null;
-            });
+            }
 
         }, error => {
             console.log(error);
